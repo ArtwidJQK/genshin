@@ -11,6 +11,6 @@ In line with the project architecture, all future game mechanics, probability ta
 - **Affix & Stat Definitions**: Schema and rules for artifact slot types, main-stat likelihoods, initial substat count distributions, and upgrade affix rolls.
 - **Gacha Pool Tables**: Probability curves, soft pity / hard pity thresholds, rate-up guarantees, and rarity pools.
 
-## Current Phase (P0 Foundation)
+## Current Phase (P1 RNG & Probability Engine Hardening)
 
-No game-specific configuration data or probability tables are active in P0. All configuration data systems will be introduced incrementally in subsequent phases after the core probability and domain engines are validated.
+No game-specific configuration data or probability tables are active in P1. All configuration data systems will be introduced incrementally in subsequent phases after the core probability and domain engines are validated.

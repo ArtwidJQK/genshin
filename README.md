@@ -4,15 +4,16 @@ A probabilistic game simulation engine inspired by Genshin-like artifact and gac
 
 ## Current Development Phase
 
-**Phase: P0 Foundation**
+**Phase: P1 — RNG & Probability Engine Hardening**
 
-This phase delivers the foundational scaffolding:
+This phase delivers the hardened probability layer:
 - Clean modular-monolith repository structure.
 - Isolated RNG abstraction (`RNGInterface`, `PythonRNG`) wrapping Python's `random.Random`.
-- Deterministic seed reproduction and state save/restore capabilities.
-- Generic, input-validated weighted choice primitive.
+- Generic Probability Engine (`ProbabilityEngineInterface`, `ProbabilityEngine`) with explicit dependency injection for RNG providers.
+- Strict input validation on all probability operations (empty checks, length matching, non-negativity, finite bounds, zero-weight immunity).
+- Deterministic seed reproduction, state save/restore, and global random state isolation.
 - Minimal FastAPI service with `/health` endpoint.
-- Deterministic pytest test suite covering RNG operations and API readiness.
+- Complete deterministic pytest test suite with edge case coverage and lightweight statistical sanity verification.
 
 ## Tech Stack
 
@@ -59,17 +60,17 @@ Expected response:
 {"status": "ok"}
 ```
 
-## Current Scope (P0)
+## Current Scope (P1)
 
-- RNG interface definition (`app/core/rng/interface.py`)
-- Encapsulated `random.Random` engine (`app/core/rng/engine.py`)
+- RNG interface definition and engine (`app/core/rng/`)
+- Probability engine interface and implementation with dependency injection (`app/core/probability/`)
 - Deterministic seeding, state serialization, bounds-checked numeric sampling, and weighted choice
-- Minimal health check API route
-- Architectural documentation and test harness
+- Minimal health check API route (`app/main.py`)
+- Architectural documentation and 33 deterministic automated tests
 
 ## Explicitly NOT Implemented Yet
 
-To maintain strict incremental discipline, the following features are intentionally out of scope for P0:
+To maintain strict incremental discipline, the following features are intentionally out of scope for P1:
 - Artifact generation, main stats, substat rolls, and enhancement
 - Gacha banners, pity counters, and pull guarantees
 - Game-specific probability tables and drop rates
