@@ -66,7 +66,7 @@ Expected response:
 - Probability engine interface and implementation with dependency injection (`app/core/probability/`)
 - Deterministic seeding, state serialization, bounds-checked numeric sampling, and weighted choice
 - Minimal health check API route (`app/main.py`)
-- Architectural documentation and 33 deterministic automated tests
+- Architectural documentation and 36 deterministic automated tests
 
 ## Explicitly NOT Implemented Yet
 

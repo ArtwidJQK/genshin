@@ -217,6 +217,10 @@ def test_weighted_choice_zero_or_negative_total_weight_handling():
     with pytest.raises(ValueError, match="Weights must be non-negative"):
         rng.weighted_choice(["A", "B"], [-5, 2])
 
+    # Overflowing cumulative total weight
+    with pytest.raises(ValueError, match="Total weight overflow"):
+        rng.weighted_choice(["A", "B"], [1e308, 1e308])
+
 
 def test_isolated_from_global_random():
     """Verify that PythonRNG does not mutate or depend on global random state."""

@@ -68,6 +68,10 @@ class PythonRNG(RNGInterface):
 
         if total_weight <= 0:
             raise ValueError("Total weight must be strictly greater than 0")
+        if not math.isfinite(total_weight):
+            raise ValueError(
+                f"Total weight overflow: cumulative weight is not finite ({total_weight})"
+            )
 
         # Select deterministically using encapsulated RNG instance
         return self._rng.choices(outcomes, weights=weights, k=1)[0]

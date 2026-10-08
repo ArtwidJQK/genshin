@@ -58,12 +58,14 @@ class ProbabilityEngine(ProbabilityEngineInterface):
 
         if total_weight <= 0:
             raise ValueError("Total weight must be strictly greater than 0")
+        if not math.isfinite(total_weight):
+            raise ValueError(
+                f"Total weight overflow: cumulative weight is not finite ({total_weight})"
+            )
 
-        # Single outcome with positive weight trivially selects that outcome
-        if len(outcomes) == 1:
-            return outcomes[0]
-
-        # Delegate randomized selection to the injected RNG abstraction
+        # Delegate randomized selection to the injected RNG abstraction.
+        # Single-outcome selection delegates consistently to ensure identical RNG stream consumption
+        # across all weighted_choice invocations for deterministic replay and step debugging.
         return self.rng.weighted_choice(outcomes, weights)
 
     def weighted_choice_from_dict(

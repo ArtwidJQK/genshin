@@ -48,10 +48,11 @@ The primary selection primitive is `weighted_choice(outcomes, weights)`:
 2. **Dimension Parity**: `len(outcomes) == len(weights)`.
 3. **Numeric and Finite**: All weights must be real numbers (`int` or `float`, excluding `bool`), non-NaN, and non-infinite.
 4. **Non-negativity**: All individual weights must satisfy $w_i \ge 0$.
-5. **Strict Positive Total**: Cumulative weight must satisfy $\sum w_i > 0$.
+5. **Finite & Positive Total**: Cumulative weight must satisfy $\sum w_i > 0$ and remain finite (rejecting IEEE-754 float overflow to $\infty$).
 6. **Zero-Weight Immunity**: Outcomes with weight $0$ can never be selected.
 7. **Scale Invariance**: Normalization is handled inherently; weights do not need to sum to $1$.
 8. **Dependency Injection**: Injects `RNGInterface` (defaults to isolated `PythonRNG`).
+9. **Uniform RNG Stream Consumption**: Single-outcome selections delegate consistently through the underlying RNG, guaranteeing that each `weighted_choice` invocation advances the RNG stream predictably for event logging, replay, and step debugging.
 
 ### Deterministic Replay and State Restoration
 

@@ -226,3 +226,65 @@ def test_lightweight_statistical_sanity():
     # Deterministic counts under seed 42: count_a == 238 (23.8%), count_b == 762 (76.2%)
     assert 0.20 <= ratio_a <= 0.30, f"Observed ratio A: {ratio_a}"
     assert 0.70 <= ratio_b <= 0.80, f"Observed ratio B: {ratio_b}"
+
+
+# ==============================================================================
+# NUMERICAL ROBUSTNESS & RNG CONSUMPTION REGRESSION TESTS
+# ==============================================================================
+
+
+def test_total_weight_overflow_non_finite_rejected():
+    """Verify that finite individual weights causing cumulative overflow to inf are rejected."""
+    pe = ProbabilityEngine(PythonRNG(seed=1))
+
+    # 1e308 is finite, but 1e308 + 1e308 overflows to infinity in IEEE-754
+    assert math.isfinite(1e308)
+    assert math.isinf(1e308 + 1e308)
+
+    with pytest.raises(ValueError, match="Total weight overflow"):
+        pe.weighted_choice(["A", "B"], [1e308, 1e308])
+
+
+def test_extreme_finite_numeric_inputs_handled_deterministically():
+    """Verify extreme finite values (near maximum and minimum float ranges) operate deterministically."""
+    pe1 = ProbabilityEngine(PythonRNG(seed=999))
+    pe2 = ProbabilityEngine(PythonRNG(seed=999))
+
+    # Large finite weights
+    res1 = [pe1.weighted_choice(["A", "B"], [1e300, 2e300]) for _ in range(20)]
+    res2 = [pe2.weighted_choice(["A", "B"], [1e300, 2e300]) for _ in range(20)]
+    assert res1 == res2
+    assert all(r in ("A", "B") for r in res1)
+
+    # Subnormal / small positive weights
+    pe1_sub = ProbabilityEngine(PythonRNG(seed=888))
+    pe2_sub = ProbabilityEngine(PythonRNG(seed=888))
+    res1_sub = [pe1_sub.weighted_choice(["A", "B"], [1e-300, 2e-300]) for _ in range(20)]
+    res2_sub = [pe2_sub.weighted_choice(["A", "B"], [1e-300, 2e-300]) for _ in range(20)]
+    assert res1_sub == res2_sub
+    assert all(r in ("A", "B") for r in res1_sub)
+
+
+def test_single_outcome_consumes_rng_consistently():
+    """Verify single-outcome weighted_choice consistently advances RNG state.
+
+    Consistent RNG consumption guarantees that every weighted_choice invocation
+    corresponds to deterministic step transitions during simulation replays and debugging.
+    """
+    rng = PythonRNG(seed=12345)
+    pe = ProbabilityEngine(rng=rng)
+
+    state_before = rng.get_state()
+    result = pe.weighted_choice(["ONLY_ONE"], [10])
+    state_after = rng.get_state()
+
+    assert result == "ONLY_ONE"
+    # The RNG state must have advanced
+    assert state_before != state_after
+
+    # Verify seed reproducibility matches exactly
+    rng_check = PythonRNG(seed=12345)
+    pe_check = ProbabilityEngine(rng=rng_check)
+    result_check = pe_check.weighted_choice(["ONLY_ONE"], [10])
+    assert result_check == "ONLY_ONE"
+    assert rng_check.get_state() == state_after
