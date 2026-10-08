@@ -19,7 +19,7 @@ To ensure complete intellectual honesty and reproducibility, all claims are clas
 The simulator maintains an unyielding separation between:
 $$\text{Game Fact} \neq \text{Reverse-Engineered Fact} \neq \text{Empirical Observation} \neq \text{Community Consensus} \neq \text{Simulator Design Choice}$$
 
-Secondary aggregators (e.g. Fandom Wiki) are never classified as Level A or B. Unverified numerical claims (such as unprovable sample sizes, uncomputed error margins, or speculative Chi-square tests) are strictly prohibited.
+Secondary aggregators (e.g. Fandom Wiki) are never classified as Level A or B. Unverified numerical claims, speculative sample sizes, uncomputed error margins, and unverified statistical hypothesis claims are strictly prohibited.
 
 ---
 
@@ -34,7 +34,7 @@ Secondary aggregators (e.g. Fandom Wiki) are never classified as Level A or B. U
 | **5** | Initial substat selection: no duplicates, cannot match main stat | Filters `main_stat` from candidate pool; sequentially draws 4 distinct substats | **A** (Uniqueness) & **B** (Datamine Filter) | Game Fact & Reverse-Engineered Fact | **VERIFIED** | Dimbreath / `AnimeGameData` | `ExcelBinOutput/ReliquaryAffixExcelConfigData.json` | Directly supported |
 | **6** | Initial substat weight ratios: 6 / 6 / 6 / 4 / 4 / 4 / 4 / 4 / 3 / 3 | `config/artifacts/substats.json` weights (Flat=6, %=4, Crit=3) | **C** | Empirical Observation / Community Consensus | **PARTIALLY VERIFIED** | NGA Research Thread (TID: 33220261) | Thread: *圣遗物词条分布汇总一图流* | Community model; server integer weights remain unrevealed |
 | **7** | Initial line count distribution: 80% 3-line vs 20% 4-line | `config/artifacts/rules.json`: `{"3": 80, "4": 20}` | **C** (Domain Drops Only) | Empirical Observation (Source-Dependent) | **PARTIALLY VERIFIED** | Genshin Data Gathering Team | Sheet: *Drop Rates*, Tab: *Artifact Quality* | Models Domain drops only; Strongbox/Bosses (66/34) not yet modeled |
-| **8** | Upgrade target selection: uniform 25% among 4 active substats | `prob_engine.weighted_choice([0,1,2,3], [1,1,1,1])` | **C / D** | Empirical Observation / Community Consensus | **PARTIALLY VERIFIED** | KQM Theorycrafting & Genshin Optimizer | KQM TCL & Optimizer Engine | Community consensus assumption; no public raw server proof |
+| **8** | Upgrade target selection: uniform 25% among 4 active substats | `prob_engine.weighted_choice([0,1,2,3], [1,1,1,1])` | **C / D** | Empirical Observation / Community Consensus | **PARTIALLY VERIFIED** | KeqingMains — Genshin Impact Artifacts Guide | `https://keqingmains.com/misc/artifacts/` (*Enhancing Artifacts*) | Community-supported modeling assumption |
 | **9** | Roll tiers (70%, 80%, 90%, 100%) and 25% tier distribution | `config/artifacts/roll_values.json`: 4 discrete tiers, weights = 25 each | **B** (Tiers & Values) & **C / D** (Tier Probability) | Reverse-Engineered Fact (Values) / Empirical Consensus (Weights) | **PARTIALLY VERIFIED** | Dimbreath / `AnimeGameData` | `ExcelBinOutput/ReliquaryAffixExcelConfigData.json` | Tier existence & values directly supported; 25% equal weight is empirical |
 | **10** | Main-stat distribution tables per slot | `config/artifacts/main_stats.json`: Flower/Plume fixed; Sands/Goblet/Circlet weighted | **A** (Flower/Plume) & **C** (Sands/Goblet/Circlet) | Game Fact (Fixed) / Empirical Approximation (Weights) | **PARTIALLY VERIFIED** | In-Game Client (Fixed) & NGA TID: 33220261 | Thread: *圣遗物词条分布汇总一图流* | Flower/Plume directly supported; decimal percentages are empirical approximations |
 
@@ -66,14 +66,21 @@ Secondary aggregators (e.g. Fandom Wiki) are never classified as Level A or B. U
 - **Simulator Status**: **Domain-Specific Approximation**. Current simulator configuration (`config/artifacts/rules.json`) strictly represents **Domain drops**. Multi-source drop differentiation remains an open feature gap.
 
 ### Audit of Claim 8: Uniform 25% Upgrade Target Selection
-- **Evidence Level**: **Level C / D** (Community Consensus & Theorycrafting Assumption).
+- **Evidence Level**: **Level C / D** (Community / Theorycrafting Documentation).
+- **Primary Source**: KeqingMains — Genshin Impact Artifacts Guide
+- **URL**: `https://keqingmains.com/misc/artifacts/`
+- **Locator**: Section: *Enhancing Artifacts*, paragraph beginning with: *"An artifact with the maximum number of different substats..."*
 - **Audit Findings**:
-  1. In the previous documentation pass, this claim asserted that *"N > 100,000 rolls prove 25% with p > 0.05 on Chi-square"*. **This assertion is hereby RETRACTED as unsupported**: no public repository or peer-reviewed theorycrafting paper contains an accessible, verifiable dataset of 100,000 recorded upgrade rolls with complete Chi-square test parameters.
-  2. The assumption of uniform $\frac{1}{4}$ ($25\%$) probability per active substat slot is the universal operational standard across all major community simulators (Genshin Optimizer, KeqingMains, Dimbreath tools).
-  3. Qualitative testing by theorycrafters has consistently failed to find evidence of statistical bias (e.g. DEF receiving more upgrades than CRIT).
-- **What the Source Establishes**: Community consensus and tooling treat the upgrade selection as uniform across the 4 active slots.
-- **What the Source Does NOT Establish**: Does not constitute mathematical proof of proprietary server RNG code.
-- **Simulator Status**: **Community Consensus Assumption**.
+  1. The KeqingMains Artifact Guide explicitly documents the standard community model for substat upgrades: when an artifact has 4 different substats, each upgrade milestone (+4, +8, +12, +16, +20) rolls into one of those 4 substats at random with equal probability ($25\%$ each).
+  2. The source explicitly establishes that previous upgrade counts on a substat do not alter future selection probabilities (independent uniform trials).
+  3. No proprietary server source code or official developer disclosure is publicly accessible. The uniform $25\%$ assumption is an empirically observed community theorycrafting model supported by long-term player observation showing no systemic bias toward specific stats (e.g., DEF over CRIT).
+- **What the Source Establishes**:
+  - An artifact with 4 different substats rolls into one of those substats every 4 levels.
+  - The upgraded substat is selected at random with equal probability for each substat ($25\%$ each).
+  - Previous upgrade counts do not alter the selection probability.
+- **What the Source Does NOT Establish**:
+  - It does not expose HoYoverse's proprietary server RNG implementation or server-side probability constants.
+- **Simulator Status**: **Community-Supported Modeling Assumption** (implemented as uniform choice `[1, 1, 1, 1]` across the 4 active slots).
 
 ### Audit of Claim 9: Roll Tiers (70%, 80%, 90%, 100%) and Tier Probabilities
 - **Evidence Level**:
@@ -178,14 +185,14 @@ Compact, auditable provenance records for all external sources cited in this res
 - **Claims Supported**: Claim 7 (80% 3-line vs 20% 4-line for Domain drops; 66% 3-line vs 34% 4-line for Strongbox, Bosses, and Reliquaries).
 - **Limitations**: Empirical volunteer submissions; subject to sampling noise.
 
-### Source 5: KeqingMains (KQM) Theorycrafting Library & Standards
-- **Source**: KeqingMains (KQM)
-- **URL**: `https://library.keqingmains.com/` (TCL) & `https://library.keqingmains.com/standards/kqms` (KQMS)
-- **Evidence Level**: **C / D**
-- **What Was Inspected**: KQM Theorycrafting Library artifact entries and standardized calculation guidelines.
-- **Locator**: `evidence/equipment/artifacts#artifact-substats-distribution` & `standards/kqms`.
-- **Claims Supported**: Claim 8 (Qualitative consensus of uniform upgrade selection); substat standardization metrics.
-- **Limitations**: Early exploratory entries had small illustrative sample sizes ($N = 157$); KQMS is a standardized calculation framework for damage benchmarks rather than an empirical drop measurement paper.
+### Source 5: KeqingMains — Genshin Impact Artifacts Guide
+- **Source**: KeqingMains (KQM) Theorycrafting Organization
+- **URL**: `https://keqingmains.com/misc/artifacts/`
+- **Evidence Level**: **C / D** (Community / Theorycrafting Documentation)
+- **What Was Inspected**: Primary community artifact mechanics guide maintained by KQM.
+- **Locator**: Section: *Enhancing Artifacts*, paragraph beginning with: *"An artifact with the maximum number of different substats..."*
+- **Claims Supported**: Claim 8 (Uniform selection among the currently active 4 substats: an artifact with 4 substats upgrades one at random with equal probability each milestone; prior upgrades do not affect future odds).
+- **Limitations**: Community documentation summarizing player observation and theorycrafting consensus; does not expose HoYoverse's proprietary server-side RNG implementation or server source code.
 
 ### Source 6: Genshin Impact Fandom Wiki
 - **Source**: Fandom Community Wiki
