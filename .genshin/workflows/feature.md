@@ -1,0 +1,21 @@
+REQUEST
+   ↓
+RESEARCH
+   ↓
+ARCHITECTURE REVIEW
+   ↓
+IMPLEMENTATION PLAN
+   ↓
+EXECUTION
+   ↓
+TEST
+   ↓
+ADVERSARIAL REVIEW
+   ↓
+PASS?
+ ┌─┴─┐
+NO  YES
+│    │
+FIX  DOCUMENT
+│    │
+└→ TEST
