@@ -5,6 +5,7 @@ import pytest
 from app.core.rng.engine import PythonRNG
 
 
+# 1. same seed -> same sequence
 def test_same_seed_produces_identical_sequence():
     """Verify that identical seeds produce strictly identical sequences."""
     rng1 = PythonRNG(seed=12345)
@@ -16,6 +17,7 @@ def test_same_seed_produces_identical_sequence():
     assert seq1 == seq2
 
 
+# 2. different seed -> different sequence
 def test_different_seeds_produce_different_sequences():
     """Verify that distinct seeds produce different sequences."""
     rng1 = PythonRNG(seed=12345)
@@ -27,6 +29,7 @@ def test_different_seeds_produce_different_sequences():
     assert seq1 != seq2
 
 
+# 3. save/restore RNG state
 def test_rng_state_save_and_restore():
     """Verify state snapshot and restoration reproduces identical subsequent outputs."""
     rng = PythonRNG(seed=999)
@@ -48,6 +51,7 @@ def test_rng_state_save_and_restore():
     assert subsequent_a == subsequent_b
 
 
+# 4. random() range
 def test_random_produces_values_in_expected_range():
     """Verify random() outputs fall strictly within [0.0, 1.0)."""
     rng = PythonRNG(seed=42)
@@ -56,6 +60,7 @@ def test_random_produces_values_in_expected_range():
         assert 0.0 <= val < 1.0
 
 
+# 5. random_int() bounds
 def test_random_int_respects_bounds():
     """Verify random_int respects inclusive [a, b] bounds and raises when a > b."""
     rng = PythonRNG(seed=42)
@@ -86,6 +91,7 @@ def test_random_float_respects_bounds():
         rng.random_float(10.0, 5.0)
 
 
+# 6. choice()
 def test_choice_works_and_rejects_empty():
     """Verify choice selects from sequence and rejects empty sequences."""
     rng = PythonRNG(seed=42)
@@ -99,6 +105,24 @@ def test_choice_works_and_rejects_empty():
         rng.choice([])
 
 
+# 7. shuffle() deterministic with same seed
+def test_shuffle_is_deterministic_under_same_seed():
+    """Verify shuffle mutates in-place deterministically with matching seeds."""
+    rng1 = PythonRNG(seed=101)
+    rng2 = PythonRNG(seed=101)
+
+    list1 = list(range(20))
+    list2 = list(range(20))
+
+    rng1.shuffle(list1)
+    rng2.shuffle(list2)
+
+    assert list1 == list2
+    # Ensure it actually shuffled
+    assert list1 != list(range(20))
+
+
+# 8. valid weighted_choice()
 def test_weighted_choice_accepts_valid_weights():
     """Verify weighted_choice functions with valid integer and float weights."""
     rng = PythonRNG(seed=777)
@@ -116,6 +140,7 @@ def test_weighted_choice_accepts_valid_weights():
     assert all(r == "always" for r in zero_weight_results)
 
 
+# 9. invalid weighted_choice() input
 def test_weighted_choice_rejects_invalid_inputs():
     """Verify weighted_choice enforces strict validation on empty, mismatched, and negative inputs."""
     rng = PythonRNG(seed=42)
@@ -139,25 +164,19 @@ def test_weighted_choice_rejects_invalid_inputs():
     with pytest.raises(ValueError, match="Invalid weight"):
         rng.weighted_choice(["A", "B"], ["high", 5])  # type: ignore
 
-    # Total weight <= 0
+
+# 10. zero/negative total weight handling
+def test_weighted_choice_zero_or_negative_total_weight_handling():
+    """Verify weighted_choice explicitly rejects zero or negative cumulative weights."""
+    rng = PythonRNG(seed=42)
+
+    # All weights zero
     with pytest.raises(ValueError, match="Total weight must be strictly greater than 0"):
-        rng.weighted_choice(["A", "B"], [0, 0])
+        rng.weighted_choice(["A", "B", "C"], [0, 0, 0])
 
-
-def test_shuffle_is_deterministic_under_same_seed():
-    """Verify shuffle mutates in-place deterministically with matching seeds."""
-    rng1 = PythonRNG(seed=101)
-    rng2 = PythonRNG(seed=101)
-
-    list1 = list(range(20))
-    list2 = list(range(20))
-
-    rng1.shuffle(list1)
-    rng2.shuffle(list2)
-
-    assert list1 == list2
-    # Ensure it actually shuffled
-    assert list1 != list(range(20))
+    # Negative weight causing failure before or during sum
+    with pytest.raises(ValueError, match="Weights must be non-negative"):
+        rng.weighted_choice(["A", "B"], [-5, 2])
 
 
 def test_isolated_from_global_random():
