@@ -5,7 +5,7 @@ import pytest
 
 from app.core.artifact.config import ArtifactConfig, load_artifact_config
 from app.core.artifact.engine import ArtifactEngine
-from app.core.artifact.models import Artifact, ArtifactSlot, SubstatState
+from app.core.artifact.models import Artifact, ArtifactSlot, Substat, SubstatState
 from app.core.probability.engine import ProbabilityEngine
 from app.core.rng.engine import PythonRNG
 
@@ -747,3 +747,114 @@ def test_corrupted_main_stat_in_substats_rejected():
 
     with pytest.raises(ValueError, match="cannot appear in substats"):
         engine.enhance_artifact(art, target_level=4)
+
+
+# ==============================================================================
+# SUBSTAT STATE HARD VALIDATION TESTS
+# ==============================================================================
+
+
+def test_corrupted_substat_state_invalid_string_rejected():
+    """Verify non-enum string substat states like 'BOGUS' or raw 'ACTIVE' are rejected."""
+    engine = ArtifactEngine(rng=PythonRNG(seed=1))
+    art = engine.generate_artifact(initial_lines=4)
+
+    # String "BOGUS"
+    art.substats[0].state = "BOGUS"  # type: ignore
+    with pytest.raises(ValueError, match="must be an instance of SubstatState enum"):
+        art.validate_state()
+
+    # Raw string "ACTIVE" (must be SubstatState enum instance, not raw str)
+    art.substats[0].state = "ACTIVE"  # type: ignore
+    with pytest.raises(ValueError, match="must be an instance of SubstatState enum"):
+        art.validate_state()
+
+
+def test_corrupted_substat_state_none_rejected():
+    """Verify None substat state is rejected with ValueError."""
+    engine = ArtifactEngine(rng=PythonRNG(seed=1))
+    art = engine.generate_artifact(initial_lines=4)
+
+    art.substats[0].state = None  # type: ignore
+    with pytest.raises(ValueError, match="must be an instance of SubstatState enum"):
+        art.validate_state()
+
+
+def test_invalid_substat_state_rejected_during_artifact_construction():
+    """Verify invalid substat state is rejected at Artifact construction via __post_init__."""
+    substats = [
+        Substat(0, "CRIT_RATE", "BOGUS", 3.9, "100%"),  # type: ignore
+        Substat(1, "CRIT_DMG", SubstatState.ACTIVE, 7.8, "100%"),
+        Substat(2, "ATK_PERCENT", SubstatState.ACTIVE, 5.8, "100%"),
+        Substat(3, "ENERGY_RECHARGE", SubstatState.ACTIVE, 6.5, "100%"),
+    ]
+    with pytest.raises(ValueError, match="must be an instance of SubstatState enum"):
+        Artifact(
+            id="bad_state_artifact",
+            rarity=5,
+            set_id="gladiators_finale",
+            slot=ArtifactSlot.FLOWER,
+            level=0,
+            main_stat="FLAT_HP",
+            substats=substats,
+        )
+
+
+def test_invalid_substat_state_rejected_before_enhancement():
+    """Verify mutated invalid substat state is caught immediately before enhancement runs."""
+    engine = ArtifactEngine(rng=PythonRNG(seed=1))
+
+    # Test "BOGUS"
+    art1 = engine.generate_artifact(initial_lines=4)
+    art1.substats[0].state = "BOGUS"  # type: ignore
+    with pytest.raises(ValueError, match="must be an instance of SubstatState enum"):
+        engine.enhance_artifact(art1, target_level=4)
+
+    # Test None
+    art2 = engine.generate_artifact(initial_lines=4)
+    art2.substats[0].state = None  # type: ignore
+    with pytest.raises(ValueError, match="must be an instance of SubstatState enum"):
+        engine.enhance_artifact(art2, target_level=4)
+
+
+def test_valid_active_state_accepted():
+    """Verify all 4 substats with valid SubstatState.ACTIVE validate successfully."""
+    engine = ArtifactEngine(rng=PythonRNG(seed=1))
+    art = engine.generate_artifact(initial_lines=4)
+    assert all(s.state == SubstatState.ACTIVE for s in art.substats)
+    # validate_state() should execute cleanly with no exceptions
+    art.validate_state()
+    assert len(art.active_substats) == 4
+    assert len(art.inactive_substats) == 0
+
+
+def test_valid_inactive_state_accepted_only_slot_4_and_level_under_4():
+    """Verify SubstatState.INACTIVE is valid only when it is slot #4 (index 3) and level < 4."""
+    engine = ArtifactEngine(rng=PythonRNG(seed=1))
+    art = engine.generate_artifact(initial_lines=3)
+
+    # Valid case: slot 3 is INACTIVE, level = 0 (< 4)
+    assert art.substats[3].state == SubstatState.INACTIVE
+    assert art.level == 0
+    art.validate_state()
+    assert len(art.active_substats) == 3
+    assert len(art.inactive_substats) == 1
+
+    # Valid intermediate level < 4 (e.g. level 3)
+    art.level = 3
+    art.validate_state()
+
+    # Invalid: slot 0 is INACTIVE
+    art.level = 0
+    art.substats[3].state = SubstatState.ACTIVE
+    art.substats[0].state = SubstatState.INACTIVE
+    with pytest.raises(ValueError, match="Only slot #4 .* may be inactive"):
+        art.validate_state()
+
+    # Invalid: slot 3 is INACTIVE but level >= 4
+    art.substats[0].state = SubstatState.ACTIVE
+    art.substats[3].state = SubstatState.INACTIVE
+    art.level = 4
+    with pytest.raises(ValueError, match="cannot have an inactive substat"):
+        art.validate_state()
+

@@ -105,6 +105,14 @@ class Artifact:
             raise ValueError(f"Artifact must have exactly 4 conceptual substat slots, got {len(self.substats)}")
 
         for idx, s in enumerate(self.substats):
+            if not isinstance(s.state, SubstatState):
+                raise ValueError(
+                    f"Substat state at slot {idx} must be an instance of SubstatState enum, got {type(s.state).__name__}: {s.state!r}"
+                )
+            if s.state not in (SubstatState.ACTIVE, SubstatState.INACTIVE):
+                raise ValueError(
+                    f"Substat state at slot {idx} must be SubstatState.ACTIVE or SubstatState.INACTIVE, got {s.state!r}"
+                )
             if s.slot_index != idx:
                 raise ValueError(f"Substat slot_index mismatch at position {idx}: got {s.slot_index}")
             if s.stat_type not in CANONICAL_SUBSTATS:
