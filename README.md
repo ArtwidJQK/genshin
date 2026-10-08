@@ -45,7 +45,7 @@ All tests are deterministic and assert exact reproducibility under seeded condit
 Start the development server with Uvicorn:
 
 ```bash
-uvicorn app.main:app --reload
+python -m uvicorn app.main:app --reload
 ```
 
 Access the health check endpoint:
