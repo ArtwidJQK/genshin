@@ -60,7 +60,7 @@ class PythonRNG(RNGInterface):
 
         total_weight = 0.0
         for w in weights:
-            if not isinstance(w, (int, float)) or math.isnan(w) or math.isinf(w):
+            if isinstance(w, bool) or not isinstance(w, (int, float)) or math.isnan(w) or math.isinf(w):
                 raise ValueError(f"Invalid weight: {w}. Must be a finite number.")
             if w < 0:
                 raise ValueError(f"Weights must be non-negative, got {w}")

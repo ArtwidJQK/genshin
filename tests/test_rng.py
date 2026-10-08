@@ -164,6 +164,45 @@ def test_weighted_choice_rejects_invalid_inputs():
     with pytest.raises(ValueError, match="Invalid weight"):
         rng.weighted_choice(["A", "B"], ["high", 5])  # type: ignore
 
+    # Boolean weight
+    with pytest.raises(ValueError, match="Invalid weight"):
+        rng.weighted_choice(["A", "B"], [True, 5])
+
+
+def test_weighted_choice_deterministic_under_same_seed():
+    """Verify identical seeds produce identical sequence of weighted choices."""
+    rng1 = PythonRNG(seed=8888)
+    rng2 = PythonRNG(seed=8888)
+
+    outcomes = ["R", "SR", "SSR", "UR"]
+    weights = [80, 15, 4, 1]
+
+    seq1 = [rng1.weighted_choice(outcomes, weights) for _ in range(50)]
+    seq2 = [rng2.weighted_choice(outcomes, weights) for _ in range(50)]
+
+    assert seq1 == seq2
+
+
+def test_weighted_choice_state_save_and_restore():
+    """Verify capturing and restoring RNG state reproduces identical weighted choice results."""
+    rng = PythonRNG(seed=4321)
+    outcomes = ["common", "uncommon", "rare", "legendary"]
+    weights = [70.0, 20.0, 8.5, 1.5]
+
+    # Advance state slightly
+    _ = [rng.random() for _ in range(5)]
+
+    state = rng.get_state()
+    val_a = rng.weighted_choice(outcomes, weights)
+    subsequent_a = [rng.weighted_choice(outcomes, weights) for _ in range(10)]
+
+    rng.set_state(state)
+    val_b = rng.weighted_choice(outcomes, weights)
+    subsequent_b = [rng.weighted_choice(outcomes, weights) for _ in range(10)]
+
+    assert val_a == val_b
+    assert subsequent_a == subsequent_b
+
 
 # 10. zero/negative total weight handling
 def test_weighted_choice_zero_or_negative_total_weight_handling():
