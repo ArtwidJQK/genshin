@@ -32,6 +32,7 @@ class ArtifactEngine:
         rng: Optional[RNGInterface] = None,
     ) -> None:
         self.config: ArtifactConfig = config if config is not None else load_artifact_config()
+        self.config.validate()
         if prob_engine is not None:
             self.prob_engine = prob_engine
         elif rng is not None:
@@ -152,6 +153,12 @@ class ArtifactEngine:
 
     def enhance_artifact(self, artifact: Artifact, target_level: int = 4) -> List[EnhancementEvent]:
         """Enhance an artifact up to target_level, processing all milestone events (+4, +8, +12, +16, +20)."""
+        # Validate current state safety before any modification
+        artifact.validate_state()
+
+        if not isinstance(target_level, int):
+            raise TypeError(f"target_level must be an integer, got {type(target_level).__name__}")
+
         if artifact.level >= self.config.max_level:
             raise ValueError(f"Artifact is already at maximum level ({self.config.max_level})")
 
@@ -215,6 +222,7 @@ class ArtifactEngine:
 
         # If target_level is between milestones or matches milestone, finalize artifact level
         artifact.level = target_level
+        artifact.validate_state()
         return generated_events
 
     def enhance_step(self, artifact: Artifact) -> EnhancementEvent:

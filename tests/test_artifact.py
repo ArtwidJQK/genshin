@@ -462,10 +462,288 @@ def test_33_duplicate_substat_configuration_rejected():
 
 def test_34_invalid_probability_weights_rejected_through_probability_contract():
     """34. Invalid probability weights are rejected through established probability contract."""
-    # Create invalid custom config where a main stat weight is negative
     bad_config = copy.deepcopy(load_artifact_config())
     bad_config.main_stats[ArtifactSlot.FLOWER]["FLAT_HP"] = -10.0
 
-    engine = ArtifactEngine(config=bad_config, rng=PythonRNG(seed=1))
-    with pytest.raises(ValueError, match="Weights must be non-negative"):
-        engine.generate_artifact(slot=ArtifactSlot.FLOWER)
+    with pytest.raises(ValueError, match="Main stat weight .* must be non-negative"):
+        ArtifactEngine(config=bad_config, rng=PythonRNG(seed=1))
+
+
+# ==============================================================================
+# FIX 1 — CONFIG VALIDATION TESTS
+# ==============================================================================
+
+
+def test_config_main_stat_non_finite_weight_rejected():
+    """Verify non-finite main-stat weights (NaN / Inf) are rejected."""
+    bad_config = copy.deepcopy(load_artifact_config())
+    bad_config.main_stats[ArtifactSlot.SANDS]["ATK_PERCENT"] = math.nan
+
+    with pytest.raises(ValueError, match="must be a finite number"):
+        bad_config.validate()
+
+
+def test_config_main_stat_zero_total_weight_rejected():
+    """Verify total main stat weight <= 0 in a slot is rejected."""
+    bad_config = copy.deepcopy(load_artifact_config())
+    bad_config.main_stats[ArtifactSlot.FLOWER]["FLAT_HP"] = 0.0
+
+    with pytest.raises(ValueError, match="Total main stat weight .* strictly greater than 0"):
+        bad_config.validate()
+
+
+def test_config_unsupported_main_stat_identifier_rejected():
+    """Verify unsupported main stat identifier is rejected."""
+    bad_config = copy.deepcopy(load_artifact_config())
+    bad_config.main_stats[ArtifactSlot.SANDS]["IMAGINARY_STAT"] = 10.0
+
+    with pytest.raises(ValueError, match="Unsupported main stat identifier"):
+        bad_config.validate()
+
+
+def test_config_missing_canonical_substat_rejected():
+    """Verify missing canonical substat in substat_weights is rejected."""
+    bad_config = copy.deepcopy(load_artifact_config())
+    del bad_config.substat_weights["CRIT_DMG"]
+
+    with pytest.raises(ValueError, match="Substat weights must contain exactly the 10 canonical substats"):
+        bad_config.validate()
+
+
+def test_config_extra_substat_rejected():
+    """Verify extra/unknown substat in substat_weights is rejected."""
+    bad_config = copy.deepcopy(load_artifact_config())
+    bad_config.substat_weights["EXTRA_STAT"] = 5.0
+
+    with pytest.raises(ValueError, match="Substat weights must contain exactly the 10 canonical substats"):
+        bad_config.validate()
+
+
+def test_config_negative_substat_weight_rejected():
+    """Verify negative substat weight is rejected."""
+    bad_config = copy.deepcopy(load_artifact_config())
+    bad_config.substat_weights["CRIT_RATE"] = -1.0
+
+    with pytest.raises(ValueError, match="must be non-negative"):
+        bad_config.validate()
+
+
+def test_config_invalid_roll_tiers_rejected():
+    """Verify tier weights not matching exactly 70%, 80%, 90%, 100% are rejected."""
+    bad_config = copy.deepcopy(load_artifact_config())
+    bad_config.tier_weights = {"50%": 50, "100%": 50}
+
+    with pytest.raises(ValueError, match="Roll tier weights must define exactly tiers"):
+        bad_config.validate()
+
+
+def test_config_missing_roll_value_tier_rejected():
+    """Verify substat roll value entry missing a tier is rejected."""
+    bad_config = copy.deepcopy(load_artifact_config())
+    del bad_config.roll_values["CRIT_RATE"]["100%"]
+
+    with pytest.raises(ValueError, match="Roll values for 'CRIT_RATE' must contain exactly tiers"):
+        bad_config.validate()
+
+
+def test_config_non_positive_roll_value_rejected():
+    """Verify roll value <= 0 is rejected."""
+    bad_config = copy.deepcopy(load_artifact_config())
+    bad_config.roll_values["CRIT_RATE"]["70%"] = 0.0
+
+    with pytest.raises(ValueError, match="must be strictly greater than 0"):
+        bad_config.validate()
+
+
+def test_config_invalid_initial_line_distribution_keys_rejected():
+    """Verify line distribution defining keys other than {3, 4} is rejected."""
+    bad_config = copy.deepcopy(load_artifact_config())
+    bad_config.initial_line_weights = {2: 50, 4: 50}
+
+    with pytest.raises(ValueError, match="Initial line distribution must only define keys 3 and 4"):
+        bad_config.validate()
+
+
+def test_config_invalid_rules_rejected():
+    """Verify invalid rarity, slots, or max level are rejected."""
+    bad_config = copy.deepcopy(load_artifact_config())
+    bad_config.rarity = 4
+
+    with pytest.raises(ValueError, match="Configuration rarity must be 5"):
+        bad_config.validate()
+
+
+# ==============================================================================
+# FIX 2 — ENHANCEMENT LEVEL CONTRACT TESTS
+# ==============================================================================
+
+
+def test_enhancement_arbitrary_intermediate_levels_and_milestones():
+    """Verify arbitrary intermediate target levels only trigger crossed milestones.
+
+    level 0 -> target 6:
+        milestones crossed: +4
+        final level: 6
+    level 6 -> target 10:
+        milestones crossed: +8
+        final level: 10
+    level 10 -> target 15:
+        milestones crossed: +12
+        final level: 15
+    level 15 -> target 20:
+        milestones crossed: +16, +20
+        final level: 20
+    """
+    engine = ArtifactEngine(rng=PythonRNG(seed=9876))
+    art = engine.generate_artifact(initial_lines=3)
+
+    # 0 -> 6: triggers milestone 4 (activation)
+    events_0_6 = engine.enhance_artifact(art, target_level=6)
+    assert art.level == 6
+    assert len(events_0_6) == 1
+    assert events_0_6[0].level == 4
+    assert events_0_6[0].event_type == "ACTIVATION"
+
+    # 6 -> 10: triggers milestone 8 (upgrade)
+    events_6_10 = engine.enhance_artifact(art, target_level=10)
+    assert art.level == 10
+    assert len(events_6_10) == 1
+    assert events_6_10[0].level == 8
+    assert events_6_10[0].event_type == "UPGRADE"
+
+    # 10 -> 15: triggers milestone 12 (upgrade)
+    events_10_15 = engine.enhance_artifact(art, target_level=15)
+    assert art.level == 15
+    assert len(events_10_15) == 1
+    assert events_10_15[0].level == 12
+    assert events_10_15[0].event_type == "UPGRADE"
+
+    # 15 -> 20: triggers milestones 16 and 20 (2 upgrades)
+    events_15_20 = engine.enhance_artifact(art, target_level=20)
+    assert art.level == 20
+    assert len(events_15_20) == 2
+    assert events_15_20[0].level == 16
+    assert events_15_20[1].level == 20
+    assert all(e.event_type == "UPGRADE" for e in events_15_20)
+
+    # At level 20, further enhancement must be rejected
+    with pytest.raises(ValueError, match="already at maximum level"):
+        engine.enhance_artifact(art, target_level=21)
+
+
+def test_enhancement_no_milestone_crossed_produces_no_events():
+    """Verify enhancing without crossing a milestone updates level without generating events."""
+    engine = ArtifactEngine(rng=PythonRNG(seed=5555))
+    art = engine.generate_artifact(initial_lines=4)
+
+    # 0 -> 2
+    events_0_2 = engine.enhance_artifact(art, target_level=2)
+    assert art.level == 2
+    assert len(events_0_2) == 0
+
+    # 2 -> 3
+    events_2_3 = engine.enhance_artifact(art, target_level=3)
+    assert art.level == 3
+    assert len(events_2_3) == 0
+
+    # 3 -> 5: crosses milestone 4
+    events_3_5 = engine.enhance_artifact(art, target_level=5)
+    assert art.level == 5
+    assert len(events_3_5) == 1
+    assert events_3_5[0].level == 4
+
+
+def test_enhancement_target_level_validation():
+    """Verify target_level <= current_level and target_level > 20 are rejected."""
+    engine = ArtifactEngine(rng=PythonRNG(seed=1))
+    art = engine.generate_artifact(initial_lines=4)
+    engine.enhance_artifact(art, target_level=5)
+
+    with pytest.raises(ValueError, match="strictly greater than current level"):
+        engine.enhance_artifact(art, target_level=5)
+
+    with pytest.raises(ValueError, match="strictly greater than current level"):
+        engine.enhance_artifact(art, target_level=3)
+
+    with pytest.raises(ValueError, match="cannot exceed max level"):
+        engine.enhance_artifact(art, target_level=25)
+
+    with pytest.raises(TypeError, match="must be an integer"):
+        engine.enhance_artifact(art, target_level=10.5)  # type: ignore
+
+
+# ==============================================================================
+# FIX 3 — STATE SAFETY & CORRUPTED STATE REJECTION
+# ==============================================================================
+
+
+def test_corrupted_inactive_substat_not_in_slot_4_rejected():
+    """Verify inactive substat in any slot other than slot #4 (index 3) is rejected."""
+    engine = ArtifactEngine(rng=PythonRNG(seed=1))
+    art = engine.generate_artifact(initial_lines=4)
+
+    # Corrupt slot #1 (index 0) to INACTIVE
+    art.substats[0].state = SubstatState.INACTIVE
+
+    with pytest.raises(ValueError, match="Only slot #4 .* may be inactive"):
+        engine.enhance_artifact(art, target_level=4)
+
+
+def test_corrupted_multiple_inactive_substats_rejected():
+    """Verify artifact with multiple inactive substats is rejected."""
+    engine = ArtifactEngine(rng=PythonRNG(seed=1))
+    art = engine.generate_artifact(initial_lines=4)
+
+    art.substats[2].state = SubstatState.INACTIVE
+    art.substats[3].state = SubstatState.INACTIVE
+
+    with pytest.raises(ValueError, match="cannot have more than 1 inactive substat"):
+        engine.enhance_artifact(art, target_level=4)
+
+
+def test_corrupted_post_plus_4_inactive_substat_rejected():
+    """Verify artifact at level >= 4 cannot possess an inactive substat."""
+    engine = ArtifactEngine(rng=PythonRNG(seed=1))
+    art = engine.generate_artifact(initial_lines=3)
+    engine.enhance_artifact(art, target_level=4)
+
+    # Manually corrupt slot #4 back to INACTIVE at level 4
+    art.substats[3].state = SubstatState.INACTIVE
+
+    with pytest.raises(ValueError, match="cannot have an inactive substat"):
+        engine.enhance_artifact(art, target_level=8)
+
+
+def test_corrupted_fewer_than_four_substats_rejected():
+    """Verify artifact with fewer than 4 substats is rejected."""
+    engine = ArtifactEngine(rng=PythonRNG(seed=1))
+    art = engine.generate_artifact(initial_lines=4)
+
+    art.substats.pop()  # now 3 substats
+
+    with pytest.raises(ValueError, match="must have exactly 4 conceptual substat slots"):
+        engine.enhance_artifact(art, target_level=4)
+
+
+def test_corrupted_duplicate_substats_rejected():
+    """Verify artifact with duplicate substats is rejected."""
+    engine = ArtifactEngine(rng=PythonRNG(seed=1))
+    art = engine.generate_artifact(initial_lines=4)
+
+    # Duplicate substat type
+    art.substats[1].stat_type = art.substats[0].stat_type
+
+    with pytest.raises(ValueError, match="Duplicate substat types detected"):
+        engine.enhance_artifact(art, target_level=4)
+
+
+def test_corrupted_main_stat_in_substats_rejected():
+    """Verify artifact where main stat appears in substats is rejected."""
+    engine = ArtifactEngine(rng=PythonRNG(seed=1))
+    art = engine.generate_artifact(initial_lines=4)
+
+    # Make substat equal to main stat
+    art.substats[0].stat_type = art.main_stat
+
+    with pytest.raises(ValueError, match="cannot appear in substats"):
+        engine.enhance_artifact(art, target_level=4)

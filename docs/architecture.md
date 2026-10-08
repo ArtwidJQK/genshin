@@ -110,7 +110,7 @@ Current scope comprises:
 - Core RNG engine with deterministic tests.
 - Generic Probability Engine with dependency injection and input contracts.
 - Artifact domain models, configuration loader, generation pipeline, and enhancement state machine.
-- 67 deterministic automated unit tests.
+- 87 deterministic automated unit tests (including strict config validation, enhancement level progression, and state corruption rejection).
 - Minimal FastAPI service (`GET /health`).
 
 Explicitly out of scope:

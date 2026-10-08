@@ -44,7 +44,7 @@ Run the complete test suite via pytest:
 python -m pytest -v
 ```
 
-All 67 tests are deterministic and assert exact reproducibility under seeded conditions.
+All 87 tests are deterministic and assert exact reproducibility under seeded conditions.
 
 ## Starting the FastAPI Application
 
@@ -72,7 +72,7 @@ Expected response:
 - Artifact domain models, configuration loader, and enhancement engine (`app/core/artifact/`)
 - Configuration tables for main stats, substats, roll values, and rules (`config/artifacts/`)
 - Minimal health check API route (`app/main.py`)
-- Architectural documentation and 67 deterministic automated tests
+- Architectural documentation and 87 deterministic automated tests
 
 ## Explicitly NOT Implemented Yet
 
