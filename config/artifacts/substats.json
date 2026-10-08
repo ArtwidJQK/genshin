@@ -1,0 +1,14 @@
+{
+  "weights": {
+    "FLAT_HP": 6,
+    "FLAT_ATK": 6,
+    "FLAT_DEF": 6,
+    "HP_PERCENT": 4,
+    "ATK_PERCENT": 4,
+    "DEF_PERCENT": 4,
+    "ENERGY_RECHARGE": 4,
+    "ELEMENTAL_MASTERY": 4,
+    "CRIT_RATE": 3,
+    "CRIT_DMG": 3
+  }
+}

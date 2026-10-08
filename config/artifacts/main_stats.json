@@ -1,0 +1,38 @@
+{
+  "FLOWER": {
+    "FLAT_HP": 100.0
+  },
+  "PLUME": {
+    "FLAT_ATK": 100.0
+  },
+  "SANDS": {
+    "HP_PERCENT": 26.68,
+    "ATK_PERCENT": 26.66,
+    "DEF_PERCENT": 26.66,
+    "ENERGY_RECHARGE": 10.0,
+    "ELEMENTAL_MASTERY": 10.0
+  },
+  "GOBLET": {
+    "HP_PERCENT": 19.25,
+    "ATK_PERCENT": 19.25,
+    "DEF_PERCENT": 19.0,
+    "PYRO_DMG_BONUS": 5.0,
+    "HYDRO_DMG_BONUS": 5.0,
+    "CRYO_DMG_BONUS": 5.0,
+    "ELECTRO_DMG_BONUS": 5.0,
+    "ANEMO_DMG_BONUS": 5.0,
+    "GEO_DMG_BONUS": 5.0,
+    "DENDRO_DMG_BONUS": 5.0,
+    "PHYSICAL_DMG_BONUS": 5.0,
+    "ELEMENTAL_MASTERY": 2.5
+  },
+  "CIRCLET": {
+    "HP_PERCENT": 22.0,
+    "ATK_PERCENT": 22.0,
+    "DEF_PERCENT": 22.0,
+    "CRIT_RATE": 10.0,
+    "CRIT_DMG": 10.0,
+    "HEALING_BONUS": 10.0,
+    "ELEMENTAL_MASTERY": 4.0
+  }
+}

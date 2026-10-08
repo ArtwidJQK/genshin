@@ -11,7 +11,9 @@ The architectural dependency direction is strictly unidirectional:
                    ↓
    Probability Engine (app.core.probability)
                    ↓
-  Artifact / Gacha Engines (Future Domain)
+   Artifact Engine (app.core.artifact)
+                   ↓
+     Gacha Engine (Future Phase)
                    ↓
       Simulation / Analytics (Future)
                    ↓
@@ -21,7 +23,7 @@ The architectural dependency direction is strictly unidirectional:
 ### Module Responsibilities:
 - **Core RNG (`app.core.rng`)**: Exclusively responsible for entropy generation, pseudo-random state mutation, isolation from Python's global random state, and deterministic reproducibility.
 - **Probability Engine (`app.core.probability`)**: Exclusively responsible for probability-selection primitives, discrete distribution evaluation, and input contract enforcement. It depends on injected RNG abstractions rather than implementing raw randomness.
-- **Artifact / Gacha Engines (Future)**: Will consume the Probability Engine for domain-specific drop tables, pity rules, and affix enhancements.
+- **Artifact Engine (`app.core.artifact`)**: Implements the 5★ Artifact domain data model, initial generation pipeline, and enhancement state machine. All stochastic operations strictly consume the `ProbabilityEngine`.
 - **API / Frontend**: Presentation and transport layers only. Business logic must never live in the frontend.
 
 ## 2. RNG Abstraction
@@ -36,14 +38,11 @@ The default implementation `PythonRNG` encapsulates an isolated instance of `ran
 - **Test Isolation**: A centralized abstraction allows tests to inject seeded RNG instances or mock deterministic sequence generators without polluting global state.
 - **Pluggability**: The underlying random number generator can be replaced or augmented (e.g., PCG, cryptographic RNG, hardware entropy) without modifying any domain or engine logic.
 
-## 3. Probability Engine Design (P1)
+## 3. Probability Engine Design
 
 The Probability Engine (`app.core.probability`) decouples probability selection from underlying RNG implementation details.
 
 ### Contract and Validation Rules
-
-The primary selection primitive is `weighted_choice(outcomes, weights)`:
-
 1. **Non-empty Collections**: `outcomes` and `weights` must not be empty.
 2. **Dimension Parity**: `len(outcomes) == len(weights)`.
 3. **Numeric and Finite**: All weights must be real numbers (`int` or `float`, excluding `bool`), non-NaN, and non-infinite.
@@ -54,40 +53,68 @@ The primary selection primitive is `weighted_choice(outcomes, weights)`:
 8. **Dependency Injection**: Injects `RNGInterface` (defaults to isolated `PythonRNG`).
 9. **Uniform RNG Stream Consumption**: Single-outcome selections delegate consistently through the underlying RNG, guaranteeing that each `weighted_choice` invocation advances the RNG stream predictably for event logging, replay, and step debugging.
 
-### Deterministic Replay and State Restoration
+## 4. Artifact Foundation v1 (`app.core.artifact`)
 
-- Providing an identical seed to the injected RNG guarantees identical output sequences.
-- Saving the RNG state before probability calls and restoring it later guarantees exact sequence replication.
-- Probability calls produce zero side-effects on Python's global random state.
+The Artifact Engine models 5★ artifacts adhering strictly to Artifact SPEC v1.
 
-## 4. Future Domain Engines (Artifact & Gacha)
+### 4.1 Artifact Entity & 4-Slot Invariant
+- Every 5★ artifact strictly contains **four conceptual substat slots** at all times.
+- Each substat slot possesses an activation state (`ACTIVE` or `INACTIVE`), a stat type, an initial value, an initial tier, and an audit trail of enhancement rolls.
 
-Future phases will build atop the Probability Engine:
-- **Artifact Engine (Future)**: Will model slot selection, main-stat likelihoods, initial substat count distributions, and affix upgrade enhancements.
-- **Gacha Engine (Future)**: Will encapsulate banner states, 4-star and 5-star pity progression, 50/50 guarantee tracking, and epitomized paths.
+### 4.2 3-Line vs 4-Line Base Model
+- **3-Line Artifact at +0**:
+  - Substats #1, #2, #3 are marked `ACTIVE`.
+  - Substat #4 is pre-generated with a concrete stat type and initial value at generation time, but marked `INACTIVE` (previewed).
+  - At milestone **+4**, substat #4 transitions from `INACTIVE` to `ACTIVE`. **No upgrade roll occurs, no values are changed, and no new stat is drawn.**
+- **4-Line Artifact at +0**:
+  - All four substats (#1 to #4) are marked `ACTIVE`.
+  - At milestone **+4**, exactly one of the four active substats is upgraded.
 
-> **Status Notice**: Game-specific mechanics, pity rules, and artifact formulas are **NOT** implemented in P1.
+### 4.3 Enhancement State Machine
+- Enhancements occur at milestones: `+4`, `+8`, `+12`, `+16`, `+20`.
+- **After +4**, all artifacts have exactly four active substats.
+- At `+8`, `+12`, `+16`, and `+20`, exactly one active substat is selected **uniformly (25% each)** for an upgrade roll.
+- Total upgrades:
+  - 3-line base: 1 activation + 4 upgrades.
+  - 4-line base: 5 upgrades.
 
-## 5. Frontend as Presentation Layer
+### 4.4 Roll Value Tiers & Increments
+- Each roll draws one of four quality tiers (`70%`, `80%`, `90%`, `100%`) using configured tier weights.
+- The stat-specific numeric increment corresponding to that tier is retrieved from configuration and appended to the target substat's roll history.
+- Current substat value is mathematically derived as:
+  $$\text{value} = \text{initial\_value} + \sum \text{increment}_i$$
 
-The frontend is strictly a presentation and interaction layer:
-- **No Client-Side Business Logic**: Probabilistic calculations, pity counters, roll outcomes, and stat rolls must never be computed in the client.
-- **Integrity & Consistency**: Centralizing mechanics in the core engine guarantees consistent calculations across interactive sessions, batch CLI simulations, and analytics pipelines.
-- **Mechanic Classification**: Any future game mechanics must be categorized explicitly:
-  - `VERIFIED GAME MECHANIC`
-  - `REVERSE-ENGINEERED MECHANIC`
-  - `COMMUNITY INFERENCE`
-  - `OUR ASSUMPTION`
-  - `OUR DESIGN CHOICE`
+### 4.5 Configuration-Driven Mechanics
+All drop rules and probabilities reside in `config/artifacts/`:
+- `main_stats.json`: Main stat likelihoods per slot (e.g. Flower=FLAT_HP, Plume=FLAT_ATK, weighted pools for Sands/Goblet/Circlet).
+- `substats.json`: Research-backed candidate weights for initial substat pool.
+- `roll_values.json`: Tier probabilities and exact values for each of the 10 substat types.
+- `rules.json`: Rarity constraints, max level (20), milestone levels, and 3-line vs 4-line drop rates.
 
-## 6. Current Project Boundaries (P1 Hardening)
+## 5. Epistemological Classification of Mechanics
 
-P1 scope encompasses:
-- Core RNG engine and deterministic tests.
-- Generic Probability Engine abstraction and implementation with dependency injection.
-- Complete edge case testing (empty, non-finite, mismatched, zero-weight, scale variance).
-- Deterministic sequence and state save/restore testing across probability calls.
-- Lightweight statistical sanity verification.
+To maintain complete intellectual honesty, mechanics are categorized explicitly:
+
+| Category | Mechanics Included |
+| :--- | :--- |
+| **VERIFIED / RESEARCH-BACKED** | 5★ artifact slots, main-stat restrictions (Flower=HP, Plume=ATK), 10 canonical substat types, no duplicate substats, substat cannot match main stat, enhancement milestones (+4, +8, +12, +16, +20), uniform 1/4 upgrade target selection. |
+| **REVERSE-ENGINEERED** | Community-aggregated substat weights (6/6/6/4/4/4/4/4/3/3), main-stat weight distributions, roll quality tiers (70%, 80%, 90%, 100%). |
+| **OUR IMPLEMENTATION DETAIL** | Pre-generating the hidden 4th substat at +0 and marking it `INACTIVE` so +4 is a pure state activation; sequential generation order: slot → main stat → lines (3 vs 4) → sub1 → sub2 → sub3 → sub4. |
+| **OUR DESIGN CHOICE** | Dataclass domain models, `SubstatRoll` and `EnhancementEvent` audit trail recording, explicit dependency injection. |
+
+> **Disclaimer**: We make no claim that the original game's proprietary backend uses this internal RNG chronology or class schema. Our design choices are chosen for deterministic replayability, testability, and clarity.
+
+## 6. Current Project Boundaries (P1 + Artifact Foundation v1)
+
+Current scope comprises:
+- Core RNG engine with deterministic tests.
+- Generic Probability Engine with dependency injection and input contracts.
+- Artifact domain models, configuration loader, generation pipeline, and enhancement state machine.
+- 67 deterministic automated unit tests.
 - Minimal FastAPI service (`GET /health`).
 
-Artifact generation, Gacha logic, database integration, Monte Carlo batch systems, and UI remain explicitly out of scope.
+Explicitly out of scope:
+- Gacha banners, pity counters, and guarantees.
+- Inventories, item locking, filtering, and databases.
+- Multi-threaded Monte Carlo farming simulators.
+- Frontend user interface.

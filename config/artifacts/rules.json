@@ -1,0 +1,10 @@
+{
+  "rarity": 5,
+  "max_level": 20,
+  "milestone_levels": [4, 8, 12, 16, 20],
+  "num_substat_slots": 4,
+  "initial_line_count_weights": {
+    "3": 80,
+    "4": 20
+  }
+}

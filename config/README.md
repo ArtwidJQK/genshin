@@ -1,16 +1,16 @@
 # Configuration System
 
-This directory is reserved for static configuration, probability definitions, and rule definitions for future development phases.
+All probabilistic drop rates, weight tables, and quality tiers across the simulator are strictly **data- and config-driven**.
 
-## Data & Config-Driven Design
+## Artifact Configuration (`config/artifacts/`)
 
-In line with the project architecture, all future game mechanics, probability tables, drop rates, and stat distributions will be strictly **data- and config-driven**:
+Established for **Artifact Foundation v1**:
 
-- **Decoupled Business Rules**: Mechanics logic will not hardcode arbitrary constants (such as 0.6% base 5-star rates or specific substat weights). Instead, schemas and configurations will declare the distributions, enabling testing, tuning, and multi-game rule definitions.
-- **Drop Tables & Weight Configurations**: Static configurations mapping item IDs, sets, and rarities to probabilities and weights.
-- **Affix & Stat Definitions**: Schema and rules for artifact slot types, main-stat likelihoods, initial substat count distributions, and upgrade affix rolls.
-- **Gacha Pool Tables**: Probability curves, soft pity / hard pity thresholds, rate-up guarantees, and rarity pools.
+- [`main_stats.json`](file:///d:/side_project/genshin/config/artifacts/main_stats.json): Declares main stat pools and relative probability weights for each artifact slot (`FLOWER`, `PLUME`, `SANDS`, `GOBLET`, `CIRCLET`).
+- [`substats.json`](file:///d:/side_project/genshin/config/artifacts/substats.json): Research-backed initial selection weights for the 10 canonical substats.
+- [`roll_values.json`](file:///d:/side_project/genshin/config/artifacts/roll_values.json): Quality tiers (`70%`, `80%`, `90%`, `100%`), tier distribution weights, and exact numeric increment values for every substat type.
+- [`rules.json`](file:///d:/side_project/genshin/config/artifacts/rules.json): Artifact rules including 5★ rarity constraint, max level (20), milestone levels (`[4, 8, 12, 16, 20]`), 4-slot invariant, and initial 3-line vs 4-line drop weights.
 
-## Current Phase (P1 RNG & Probability Engine Hardening)
+## Gacha Configuration (Future Phase)
 
-No game-specific configuration data or probability tables are active in P1. All configuration data systems will be introduced incrementally in subsequent phases after the core probability and domain engines are validated.
+Reserved for upcoming Gacha banner pool tables, soft/hard pity curves, and 50/50 guarantee rules.
