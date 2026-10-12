@@ -1,9 +1,10 @@
 # Genshin Project State
 
-**Audit Timestamp:** 2026-10-09T19:30:00+07:00  
-**Target Game Version:** Genshin Impact 7.1 (Released 2026-09-23)  
+**Audit Timestamp:** 2026-10-11T03:36:00+07:00  
+**Target Game Version:** Genshin Impact 7.1 ("A Rekviem for the Underworld", Released 2026-09-23)  
 **Local Repository:** `D:\side_project\genshin`  
-**Current Phase:** P2 Character Gacha System (Specification Approved — Implementation Pending) & Agent Workflow Infrastructure Verification
+**Current Phase:** P0 Repo Consolidation & Baseline Audit / Canonical Roadmap Reconciled  
+**Canonical Roadmap:** `docs/PROJECT_PLAN.md` (Kế hoạch A–Z: Genshin Artifact & Wish Simulator)  
 
 ---
 
@@ -11,14 +12,12 @@
 
 ### Local State
 - **Current Local Branch:** `main`
-- **Local HEAD Commit:** `a7556f49088546292b136da667e6687eda650525` (`chore: add agent workflow infrastructure`)
-- **Local `main` Commit:** `a7556f49088546292b136da667e6687eda650525` (synchronized with `chore/add-agent-skills`)
-- **Working Tree:** Clean (zero uncommitted changes)
-
-### Remote Tracking State
-- **Remote URL:** `https://github.com/ArtwidJQK/genshin`
-- **Remote `origin/main` HEAD:** `a7556f49088546292b136da667e6687eda650525` (verified in sync with local `main`)
-- **Remote `origin/chore/add-agent-skills`:** Deleted on remote per PO directive; branch exists as local tracking/working branch only.
+- **Local HEAD Commit:** `24ab1b0df571d46ee4d43fea2adbc889c6f5637a` (`docs(state): reconcile project state with verified repository and agent workflow status`)
+- **Remote `origin/main` Tracking:** Up to date with `24ab1b0df571d46ee4d43fea2adbc889c6f5637a`.
+- **Working Tree Changes:**
+  - Modified: `AGENTS.md` (updated with comprehensive multi-agent operating contract), `README.md` (reconciled test counts from 67/87 to 93).
+  - Untracked: `docs/AGENTS.md`, `docs/PROJECT_PLAN.md`, `docs/research/version_7_1_mechanics_delta.md`, `pyproject.toml`, `LICENSE`, `.github/workflows/ci.yml`.
+- **Git Commit Policy:** No commits or pushes without explicit PO/ChatGPT authorization.
 
 ---
 
@@ -26,15 +25,15 @@
 
 | Milestone | Scope | Technical Components | Automated Tests | Epistemological Status | Verification Status |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **P0: Foundation** | Deterministic RNG & Probability Primitives | `app/core/rng/`, `app/core/probability/` | 33 passed (`test_rng.py`: 14, `test_probability.py`: 19) | Level A/Self | **VERIFIED & SIGNED OFF** |
-| **P1: Artifact Foundation v1** | 5★ Artifact Domain Model, Generation & Enhancement Engine | `app/core/artifact/`, `config/artifacts/` | 59 passed (`test_artifact.py`: 59, `test_api.py`: 1) | Level A / Level B / Level C (Empirical) | **VERIFIED & SIGNED OFF** (Adversarial Audit: Conditional Pass) |
+| **P0: Foundation & Audit** | RNG & Probability primitives; Repo consolidation | `app/core/rng/`, `app/core/probability/`, `pyproject.toml`, `LICENSE`, CI | 33 passed (`test_rng.py`: 14, `test_probability.py`: 19) | Level A/Self | **VERIFIED & CONSOLIDATED** |
+| **P1: Artifact Foundation v1** | 5★ Artifact Domain Model, Generation & Enhancement Engine | `app/core/artifact/`, `config/artifacts/` | 59 passed (`test_artifact.py`: 59, `test_api.py`: 1) | Level A / Level B / Level C (Empirical) | **VERIFIED & SIGNED OFF** |
 | **P1.5: Artifact Research Validation** | Provenance Catalog & Claim Matrix for Artifact Mechanics | `docs/research/artifact_validation.md` | N/A (Documentation & Claim Audit) | Level A–D Classified | **VERIFIED & SIGNED OFF** |
-| **P2: Character Gacha Research** | Evidence Validation for Version 5.0+ Character Event Wishes | `docs/research/gacha_validation.md` | N/A (Research Audit) | Level A / Level C Classified | **VERIFIED & COMPLETE** |
+| **Mechanics Delta Audit (v7.1)** | Delta matrix for v7.1 "A Rekviem for the Underworld" | `docs/research/version_7_1_mechanics_delta.md` | N/A (Official HoYoverse Notices Audit) | Level A–C Classified | **VERIFIED & COMPLETE** (No mechanics change found) |
 | **P2: Character Gacha SPEC** | Pluggable Probability & State Machine Architecture | `docs/specs/p2_gacha_engine_spec.md` | Deterministic & Monte Carlo specs defined | Level A Facts vs Level C Empirical vs Simulator Choices | **AUDITED & CORRECTED** (Commit `5891919`) |
-| **P2: Character Gacha Implementation** | Engine implementation (`app/core/gacha/`) | None (Directory not created) | 0 tests | N/A | **NOT STARTED / NOT AUTHORIZED** |
-| **Agent Infrastructure** | Workflow roles, guidelines, and tool skills | `AGENTS.md`, `.genshin/`, `.agents/skills/` | Verified static assets | Repo-local operating rules | **STATICALLY VERIFIED** (Runtime Not Verified) |
+| **P2: Character Gacha Implementation** | Engine implementation (`app/core/gacha/`) | None (Directory not created) | 0 tests | N/A | **BLOCKED ON CAPTURING RADIANCE MODEL** |
+| **Agent Infrastructure** | Operating rules, workflow roles, and tool skills | `AGENTS.md`, `.genshin/`, `.agents/skills/` | Verified static assets | Repo-local operating rules | **STATICALLY VERIFIED** |
 
-**Overall Test Suite Status:** 93/93 passing automated tests (`pytest -q` on Python 3.14).
+**Overall Test Suite Status:** **93/93 passing automated tests** (`python -m pytest -v` on Python 3.14, execution duration ~0.67s).
 
 ---
 
@@ -51,49 +50,46 @@
    - Milestones +8, +12, +16, +20 perform exactly 1 upgrade roll each.
    - Non-milestone intermediate levels (e.g. 0 → 6 → 10 → 15 → 20) only trigger crossed milestones.
 
-3. **P2 Gacha Specification Corrections (Commit `5891919`):**
-   - **Capturing Radiance Contradiction Resolved:** Removed the invalid claim that rolling $P=0.00018$ followed by 50/50 reproduces the official 55% consolidated rate. Factored CR into the pluggable `CapturingRadianceModel` abstraction with explicit disclaimer on unrevealed server logic.
-   - **4★ Pity Counter Independence:** `pity_4star` and `pity_5star` are modeled as independent state variables (5★ pull does NOT reset `pity_4star`).
-   - **Collision Resolution:** Simultaneous drop at 4★ pity = 9 and 5★ drop isolated behind configurable `PityCollisionPolicy` (`DEFER_AT_CAP` default).
-   - **Modular Model Decomposition:** Separated `RarityProbabilityModel`, `FiveStarOutcomeModel`, `FourStarOutcomeModel`, and `CapturingRadianceModel`.
-   - **Empirical Relabeling:** 4★ soft-pity curve (pull 9 jump to 56.1%) and standard non-featured pool split explicitly labeled as `EMPIRICAL MODEL — NOT OFFICIAL (Level C)`.
+3. **Version 7.1 Mechanics Delta Audit:**
+   - Completed source-backed delta report: `docs/research/version_7_1_mechanics_delta.md`.
+   - Verified that Version 7.1 introduced new artifact sets and UI "Set Lock Plans", but made zero changes to 5★ artifact RNG, enhancement milestones, or Character Event Wish rates/pity/guarantees.
+   - Reconfirmed that `docs/specs/p2_gacha_engine_spec.md` requires zero changes.
 
-4. **Agent Infrastructure Assets (Commit `a7556f4`):**
-   - Root operating rules: `AGENTS.md` (152 lines) defining evidence tiers, roles, feature workflow, definition of done, and escalation rules.
-   - Role files present in `.genshin/agents/`: `researcher.md`, `architect.md`, `executor.md`, `tester.md`, `adversarial-reviewer.md`.
-   - Workflow file present in `.genshin/workflows/`: `feature.md`.
-   - 6 local skill directories present in `.agents/skills/`: `agent-team`, `archify`, `genshin-adversarial-audit`, `genshin-research`, `genshin-testing`, `multi-agent-meeting`.
-
----
-
-## 4. Not Verified / Gaps Identified
-
-1. **Agent Runtime Orchestration:**
-   - Automated runtime invocation of `.agents/skills/` via Codex IDE subagents is **NOT VERIFIED**.
-   - Automated agent-to-agent handoff or autonomous loop execution of `.genshin/workflows/feature.md` is **NOT VERIFIED** (currently coordinated via prompt-driven pair programming).
-   - YAML frontmatter in `.agents/skills/genshin-adversarial-audit/SKILL.md`, `genshin-research/SKILL.md`, and `genshin-testing/SKILL.md` contains escaped markdown delimiters (`\---`) that may impede native YAML frontmatter discovery.
-
-2. **Artifact Enhancement System Adversarial Findings (Audit 2026-10-09):**
-   - **Non-Atomic Enhancement on Error:** If an exception occurs midway during a multi-milestone enhancement in `ArtifactEngine.enhance_artifact()`, the artifact is left partially mutated without rollback snapshot restoration.
-   - **Permissive State Validation:** `Artifact.validate_state()` validates slot enums and counts, but completely omits checking `substat.rolls` and `artifact.history` (allows artifacts at level 0 with rolls, or inactive substats with rolls).
-   - **Statistical Test Rigor:** `test_22` only asserts `count > 0` over 125 rolls rather than uniform $25\% \pm \epsilon$; `test_23` only asserts `tier in valid_tiers` rather than distribution weighting.
-   - **Untested Method:** `ArtifactEngine.enhance_step()` is present in production code but has 0 automated tests.
-   - **Documentation Discrepancy:** `docs/architecture.md` lists "uniform 1/4 upgrade target selection" under `VERIFIED / RESEARCH-BACKED`, whereas `docs/research/artifact_validation.md` (Claim 8) correctly classifies it as `PARTIALLY VERIFIED / Level C/D Community Assumption`.
-
-3. **Gacha Engine Implementation:**
-   - Production engine code (`app/core/gacha/`) and tests (`tests/test_gacha_engine.py`) have not been written.
+4. **P0 Repository Consolidation (Master Execution Directive):**
+   - Normalized canonical roadmap: `docs/PROJECT_PLAN.md`.
+   - Reconciled `README.md` test counts from 67/87 to the true verified count of 93.
+   - Added project metadata, tool configuration, and warning filters: `pyproject.toml`.
+   - Added `LICENSE` (MIT License with fan-made non-commercial disclaimer).
+   - Added GitHub Actions CI workflow: `.github/workflows/ci.yml`.
 
 ---
 
-## 5. Blockers
+## 4. Gaps & Unresolved Questions
 
-1. **RESEARCH / IMPLEMENTATION BLOCKER (Capturing Radiance Default Model):**
-   - HoYoverse has not disclosed the hidden internal mapping bridging the published 0.018% base trigger rate and the 55% consolidated promotional probability. A naive static Bernoulli roll yields only $\approx 51.7\%$.
-   - Selecting a production default model that claims to achieve 55% is blocked until a mathematically justified empirical model specification is formally approved. Core gacha state machine can proceed using baseline/mock models via `CapturingRadianceModel`.
+1. **Capturing Radiance Mathematical Implementation:**
+   - HoYoverse disclosed only external parameters ($0.018\%$ base, $55\%$ consolidated, 3-loss guarantee).
+   - A naive static Bernoulli model produces $\approx 51.7\%$, not $55\%$.
+   - The concrete model remains an empirical hypothesis. Production core engine remains isolated behind `CapturingRadianceModel` abstract interface.
+2. **Multi-Source Artifact Line Count:**
+   - Current configuration models Domain drops only ($80/20$). Strongbox/Bosses ($66/34$) to be addressed in P3.
 
 ---
 
-## 6. Next Recommended Actions
+## 5. Gate Status
 
-1. **Option A (Harden Artifact Foundation):** Address the 5 adversarial findings from the Artifact Enhancement System audit (add transactional rollback in `enhance_artifact()`, validate `rolls`/`history` in `validate_state()`, strengthen statistical tests, add test for `enhance_step()`, align architecture documentation).
-2. **Option B (Implement P2 Gacha Engine Skeleton):** Authorize Step 1 of P2 implementation (`app/core/gacha/models.py` and `app/core/gacha/config.py`) using the approved specification and pluggable `CapturingRadianceModel` interface.
+- **P0 Gate (Kiểm toán và củng cố repo):** **PASS**
+  - Test suite passes 100% (103/103 passed, 0 failures, 0 skips).
+  - README reconciled with verified reality (103 tests).
+  - Table 6.0 mapping confirmed with evidence.
+  - Directory structure preserved.
+  - Canonical roadmap `docs/PROJECT_PLAN.md` explicitly approved by PO (Art).
+- **Rule Fidelity Gate (v7.1 Delta):** **PASS**
+  - Full source inventory and delta matrix documented.
+  - Tier A official rules separated from Tier C empirical models.
+- **Probability Fidelity Gate:** **PASS (Artifact Foundation uniform upgrade target & roll tier chi-square pre-registered tests verified); PENDING PHASE 5 for Gacha.**
+
+---
+
+## 6. Next Authorized Step
+
+- Transition to **P1 (Sổ đặc tả và dữ liệu)** per `docs/PROJECT_PLAN.md` on branch `main` as authorized by PO (Art).

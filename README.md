@@ -18,7 +18,7 @@ This phase delivers the core 5★ Artifact generation and enhancement state mach
   - +4 for 4-line base and all subsequent milestones (+8, +12, +16, +20) perform uniform 1/4 upgrade rolls.
 - Full audit history retained for every roll increment and milestone event.
 - Data-driven configurations (`config/artifacts/`) for main stats, substat weights, roll tiers, and rules.
-- 67 deterministic automated unit tests across RNG, Probability, API, and Artifact domains.
+- 103 deterministic automated unit tests across RNG, Probability, API, and Artifact domains.
 
 ## Tech Stack
 
@@ -44,7 +44,7 @@ Run the complete test suite via pytest:
 python -m pytest -v
 ```
 
-All 87 tests are deterministic and assert exact reproducibility under seeded conditions.
+All 103 tests are deterministic and assert exact reproducibility under seeded conditions.
 
 ## Starting the FastAPI Application
 
@@ -72,7 +72,7 @@ Expected response:
 - Artifact domain models, configuration loader, and enhancement engine (`app/core/artifact/`)
 - Configuration tables for main stats, substats, roll values, and rules (`config/artifacts/`)
 - Minimal health check API route (`app/main.py`)
-- Architectural documentation and 87 deterministic automated tests
+- Architectural documentation and 103 deterministic automated tests
 
 ## Explicitly NOT Implemented Yet
 

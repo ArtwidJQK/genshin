@@ -858,3 +858,218 @@ def test_valid_inactive_state_accepted_only_slot_4_and_level_under_4():
     with pytest.raises(ValueError, match="cannot have an inactive substat"):
         art.validate_state()
 
+
+# ==============================================================================
+# HARDENED TESTS — Adversarial Finding #2: validate_state roll integrity
+# ==============================================================================
+
+
+def test_validate_state_rejects_inactive_substat_with_rolls():
+    """Adversarial Finding #2a: validate_state must reject an INACTIVE substat that has rolls."""
+    from app.core.artifact.models import SubstatRoll
+    engine = ArtifactEngine(rng=PythonRNG(seed=1))
+    art = engine.generate_artifact(initial_lines=3)
+
+    art.substats[3].rolls.append(SubstatRoll(level=4, tier="100%", increment=7.77))
+
+    with pytest.raises(ValueError, match="INACTIVE but has.*roll record"):
+        art.validate_state()
+
+
+def test_validate_state_rejects_excess_total_rolls():
+    """Adversarial Finding #2b: validate_state must reject artifacts with >5 total roll records."""
+    from app.core.artifact.models import SubstatRoll
+    engine = ArtifactEngine(rng=PythonRNG(seed=1))
+    art = engine.generate_artifact(initial_lines=4)
+    engine.enhance_artifact(art, target_level=20)
+
+    total = sum(len(s.rolls) for s in art.substats)
+    assert total == 5
+
+    art.substats[0].rolls.append(SubstatRoll(level=20, tier="70%", increment=0.01))
+
+    with pytest.raises(ValueError, match="Total enhancement roll count.*exceeds the maximum"):
+        art.validate_state()
+
+
+def test_enhance_artifact_is_atomic_on_type_error():
+    """Adversarial Finding #1 (complement): artifact must be unchanged if enhance_artifact raises TypeError."""
+    engine = ArtifactEngine(rng=PythonRNG(seed=1))
+    art = engine.generate_artifact(initial_lines=4)
+
+    snapshot_level = art.level
+    snapshot_history_len = len(art.history)
+    snapshot_rolls = sum(len(s.rolls) for s in art.substats)
+
+    with pytest.raises(TypeError, match="must be an integer"):
+        engine.enhance_artifact(art, target_level=4.5)  # type: ignore
+
+    assert art.level == snapshot_level
+    assert len(art.history) == snapshot_history_len
+    assert sum(len(s.rolls) for s in art.substats) == snapshot_rolls
+
+
+# ==============================================================================
+# HARDENED TESTS — Adversarial Finding #3: chi-square test for uniform upgrade
+#                   target selection (25% per slot)
+#
+# Pre-registration (per AGENTS.md s10.3):
+#   Expected distribution: uniform P(slot=k) = 0.25 for k in {0,1,2,3}.
+#   Test statistic: Pearson chi-square = sum((O-E)^2/E).
+#   alpha = 0.001, df = 3, critical value = 16.27.
+#   n = 200 artifacts x 5 upgrades = 1000 upgrade events.
+#   Fixed seed: 7777 (chosen before viewing any results).
+# ==============================================================================
+
+
+def test_22_harden_upgrade_target_uniform_chi_square():
+    """Hardened test 22: Upgrade target selection is statistically uniform (chi-square, alpha=0.001)."""
+    engine = ArtifactEngine(rng=PythonRNG(seed=7777))
+    counts = {0: 0, 1: 0, 2: 0, 3: 0}
+
+    n_artifacts = 200
+    for _ in range(n_artifacts):
+        art = engine.generate_artifact(initial_lines=4)
+        events = engine.enhance_artifact(art, target_level=20)
+        for ev in events:
+            if ev.event_type == "UPGRADE":
+                counts[ev.target_substat_index] += 1
+
+    total = sum(counts.values())
+    assert total == n_artifacts * 5, f"Expected {n_artifacts * 5} upgrade events, got {total}"
+
+    expected = total / 4.0
+    chi2 = sum((obs - expected) ** 2 / expected for obs in counts.values())
+
+    CRITICAL_VALUE = 16.27  # chi-square, df=3, alpha=0.001, pre-registered
+    assert chi2 < CRITICAL_VALUE, (
+        f"chi-square={chi2:.4f} exceeds critical value {CRITICAL_VALUE} (alpha=0.001, df=3). "
+        f"Slot counts: {counts}. Expected ~{expected:.0f} per slot."
+    )
+    assert all(c > 0 for c in counts.values()), f"At least one slot never selected: {counts}"
+
+
+# ==============================================================================
+# HARDENED TESTS — Adversarial Finding #4: chi-square test for roll tier
+#                   distribution (25% per tier)
+#
+# Pre-registration (per AGENTS.md s10.3):
+#   Expected distribution: uniform P(tier=t) = 0.25 for t in {70%, 80%, 90%, 100%}.
+#   Test statistic: Pearson chi-square = sum((O-E)^2/E).
+#   alpha = 0.001, df = 3, critical value = 16.27.
+#   n = 400 artifacts x 4 initial substats + 400 x 5 upgrades = 3600 tier draws.
+#   Fixed seed: 8888 (chosen before viewing any results).
+# ==============================================================================
+
+
+def test_23_harden_roll_tier_distribution_chi_square():
+    """Hardened test 23: Roll tier selection is statistically uniform (chi-square, alpha=0.001)."""
+    engine = ArtifactEngine(rng=PythonRNG(seed=8888))
+    valid_tiers = set(engine.config.tier_weights.keys())
+    tier_counts = {t: 0 for t in valid_tiers}
+
+    n_artifacts = 400
+    for _ in range(n_artifacts):
+        art = engine.generate_artifact(initial_lines=4)
+        for s in art.substats:
+            assert s.initial_tier in valid_tiers
+            tier_counts[s.initial_tier] += 1
+
+        events = engine.enhance_artifact(art, target_level=20)
+        for ev in events:
+            if ev.event_type == "UPGRADE":
+                assert ev.tier in valid_tiers
+                tier_counts[ev.tier] += 1
+
+    total = sum(tier_counts.values())
+    expected_per_tier = total / len(valid_tiers)
+    chi2 = sum((obs - expected_per_tier) ** 2 / expected_per_tier for obs in tier_counts.values())
+
+    CRITICAL_VALUE = 16.27  # chi-square, df=3, alpha=0.001, pre-registered
+    assert chi2 < CRITICAL_VALUE, (
+        f"chi-square={chi2:.4f} exceeds critical value {CRITICAL_VALUE} (alpha=0.001, df=3). "
+        f"Tier counts: {tier_counts}. Expected ~{expected_per_tier:.0f} per tier."
+    )
+    assert all(c > 0 for c in tier_counts.values()), f"At least one tier never selected: {tier_counts}"
+
+
+# ==============================================================================
+# HARDENED TESTS — Adversarial Finding #5: enhance_step() has 0 tests
+# ==============================================================================
+
+
+def test_enhance_step_advances_to_next_milestone_from_level_0_four_line():
+    """Finding #5a: enhance_step on 4-line artifact at level 0 produces UPGRADE at milestone 4."""
+    engine = ArtifactEngine(rng=PythonRNG(seed=555))
+    art = engine.generate_artifact(initial_lines=4)
+
+    assert art.level == 0
+    event = engine.enhance_step(art)
+
+    assert art.level == 4
+    assert event.event_type == "UPGRADE"
+    assert event.level == 4
+    assert event.tier is not None
+    assert event.increment > 0.0
+    assert 0 <= event.target_substat_index <= 3
+    assert len(art.history) == 1
+
+
+def test_enhance_step_advances_to_next_milestone_from_level_0_three_line():
+    """Finding #5b: enhance_step on 3-line artifact at level 0 produces ACTIVATION at milestone 4."""
+    engine = ArtifactEngine(rng=PythonRNG(seed=556))
+    art = engine.generate_artifact(initial_lines=3)
+
+    assert art.substats[3].state == SubstatState.INACTIVE
+    event = engine.enhance_step(art)
+
+    assert art.level == 4
+    assert event.event_type == "ACTIVATION"
+    assert event.level == 4
+    assert event.increment == 0.0
+    assert event.tier is None
+    assert art.substats[3].state == SubstatState.ACTIVE
+
+
+def test_enhance_step_sequential_reaches_plus_20():
+    """Finding #5c: Sequential enhance_step calls from 0 to 20 produce 5 correct events."""
+    engine = ArtifactEngine(rng=PythonRNG(seed=557))
+    art = engine.generate_artifact(initial_lines=4)
+
+    events = []
+    for _ in range(5):
+        events.append(engine.enhance_step(art))
+
+    assert art.level == 20
+    assert len(events) == 5
+    assert [e.level for e in events] == [4, 8, 12, 16, 20]
+    assert all(e.event_type == "UPGRADE" for e in events)
+    assert sum(len(s.rolls) for s in art.substats) == 5
+
+
+def test_enhance_step_at_max_level_raises():
+    """Finding #5d: enhance_step on a fully enhanced artifact raises ValueError."""
+    engine = ArtifactEngine(rng=PythonRNG(seed=558))
+    art = engine.generate_artifact(initial_lines=4)
+    engine.enhance_artifact(art, target_level=20)
+
+    with pytest.raises(ValueError, match="already at maximum level"):
+        engine.enhance_step(art)
+
+
+def test_enhance_step_determinism_with_same_seed():
+    """Finding #5e: enhance_step is deterministic -- same seed gives identical event sequences."""
+    engine1 = ArtifactEngine(rng=PythonRNG(seed=559))
+    engine2 = ArtifactEngine(rng=PythonRNG(seed=559))
+
+    art1 = engine1.generate_artifact(initial_lines=4, artifact_id="X")
+    art2 = engine2.generate_artifact(initial_lines=4, artifact_id="X")
+
+    for _ in range(5):
+        e1 = engine1.enhance_step(art1)
+        e2 = engine2.enhance_step(art2)
+        assert e1.level == e2.level
+        assert e1.event_type == e2.event_type
+        assert e1.target_substat_index == e2.target_substat_index
+        assert e1.tier == e2.tier
+        assert e1.increment == e2.increment

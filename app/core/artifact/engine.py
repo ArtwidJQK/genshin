@@ -1,3 +1,4 @@
+import copy
 import uuid
 from typing import List, Optional, Union
 
@@ -152,7 +153,13 @@ class ArtifactEngine:
         )
 
     def enhance_artifact(self, artifact: Artifact, target_level: int = 4) -> List[EnhancementEvent]:
-        """Enhance an artifact up to target_level, processing all milestone events (+4, +8, +12, +16, +20)."""
+        """Enhance an artifact up to target_level, processing all milestone events (+4, +8, +12, +16, +20).
+
+        This method is atomic: if any exception occurs mid-enhancement (validation failure,
+        configuration error, or unexpected runtime error), the artifact is fully restored to
+        its pre-call state via a deep-copy snapshot. The caller's reference is always either
+        fully advanced or completely unchanged.
+        """
         # Validate current state safety before any modification
         artifact.validate_state()
 
@@ -172,57 +179,72 @@ class ArtifactEngine:
                 f"Target level ({target_level}) cannot exceed max level ({self.config.max_level})"
             )
 
+        # Take a deep-copy snapshot BEFORE any mutation so we can roll back on error.
+        # We snapshot only the mutable fields: level, substats, and history.
+        _snapshot_level = artifact.level
+        _snapshot_substats = copy.deepcopy(artifact.substats)
+        _snapshot_history = copy.deepcopy(artifact.history)
+
         milestones = [
             m for m in self.config.milestone_levels if artifact.level < m <= target_level
         ]
         generated_events: List[EnhancementEvent] = []
 
-        for m_level in milestones:
-            # Check milestone +4 for 3-line activation
-            inactive_stats = artifact.inactive_substats
-            if m_level == 4 and len(inactive_stats) > 0:
-                # Activate the hidden fourth substat (slot index 3)
-                target_substat = artifact.substats[3]
-                target_substat.state = SubstatState.ACTIVE
+        try:
+            for m_level in milestones:
+                # Check milestone +4 for 3-line activation
+                inactive_stats = artifact.inactive_substats
+                if m_level == 4 and len(inactive_stats) > 0:
+                    # Activate the hidden fourth substat (slot index 3)
+                    target_substat = artifact.substats[3]
+                    target_substat.state = SubstatState.ACTIVE
 
-                event = EnhancementEvent(
-                    level=4,
-                    event_type="ACTIVATION",
-                    target_substat_index=3,
-                    stat_type=target_substat.stat_type,
-                    increment=0.0,
-                    tier=None,
-                )
-                artifact.history.append(event)
-                generated_events.append(event)
-            else:
-                # Upgrade roll: select uniformly among the four ACTIVE substats
-                target_idx = self.prob_engine.weighted_choice([0, 1, 2, 3], [1, 1, 1, 1])
-                target_substat = artifact.substats[target_idx]
+                    event = EnhancementEvent(
+                        level=4,
+                        event_type="ACTIVATION",
+                        target_substat_index=3,
+                        stat_type=target_substat.stat_type,
+                        increment=0.0,
+                        tier=None,
+                    )
+                    artifact.history.append(event)
+                    generated_events.append(event)
+                else:
+                    # Upgrade roll: select uniformly among the four ACTIVE substats
+                    target_idx = self.prob_engine.weighted_choice([0, 1, 2, 3], [1, 1, 1, 1])
+                    target_substat = artifact.substats[target_idx]
 
-                tier = self.prob_engine.weighted_choice_from_dict(self.config.tier_weights)
-                increment = self.config.roll_values[target_substat.stat_type][tier]
+                    tier = self.prob_engine.weighted_choice_from_dict(self.config.tier_weights)
+                    increment = self.config.roll_values[target_substat.stat_type][tier]
 
-                target_substat.rolls.append(
-                    SubstatRoll(level=m_level, tier=tier, increment=increment)
-                )
+                    target_substat.rolls.append(
+                        SubstatRoll(level=m_level, tier=tier, increment=increment)
+                    )
 
-                event = EnhancementEvent(
-                    level=m_level,
-                    event_type="UPGRADE",
-                    target_substat_index=target_idx,
-                    stat_type=target_substat.stat_type,
-                    increment=increment,
-                    tier=tier,
-                )
-                artifact.history.append(event)
-                generated_events.append(event)
+                    event = EnhancementEvent(
+                        level=m_level,
+                        event_type="UPGRADE",
+                        target_substat_index=target_idx,
+                        stat_type=target_substat.stat_type,
+                        increment=increment,
+                        tier=tier,
+                    )
+                    artifact.history.append(event)
+                    generated_events.append(event)
 
-            artifact.level = m_level
+                artifact.level = m_level
 
-        # If target_level is between milestones or matches milestone, finalize artifact level
-        artifact.level = target_level
-        artifact.validate_state()
+            # If target_level is between milestones or matches milestone, finalize artifact level
+            artifact.level = target_level
+            artifact.validate_state()
+        except Exception:
+            # Restore the artifact to its pre-call state so the caller's reference is always
+            # either fully advanced or completely unchanged (atomicity guarantee).
+            artifact.level = _snapshot_level
+            artifact.substats = _snapshot_substats
+            artifact.history = _snapshot_history
+            raise
+
         return generated_events
 
     def enhance_step(self, artifact: Artifact) -> EnhancementEvent:

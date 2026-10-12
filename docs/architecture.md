@@ -97,7 +97,8 @@ To maintain complete intellectual honesty, mechanics are categorized explicitly:
 
 | Category | Mechanics Included |
 | :--- | :--- |
-| **VERIFIED / RESEARCH-BACKED** | 5★ artifact slots, main-stat restrictions (Flower=HP, Plume=ATK), 10 canonical substat types, no duplicate substats, substat cannot match main stat, enhancement milestones (+4, +8, +12, +16, +20), uniform 1/4 upgrade target selection. |
+| **VERIFIED / RESEARCH-BACKED** | 5★ artifact slots, main-stat restrictions (Flower=HP, Plume=ATK), 10 canonical substat types, no duplicate substats, substat cannot match main stat, enhancement milestones (+4, +8, +12, +16, +20). |
+| **PARTIALLY VERIFIED (Level C/D — Community Empirical)** | Uniform 1/4 upgrade target selection (upgrades distribute evenly across 4 active substats without stat bias; observed empirically but not confirmed by server-side source code — see `docs/research/artifact_validation.md` Claim 8). |
 | **REVERSE-ENGINEERED** | Community-aggregated substat weights (6/6/6/4/4/4/4/4/3/3), main-stat weight distributions, roll quality tiers (70%, 80%, 90%, 100%). |
 | **OUR IMPLEMENTATION DETAIL** | Pre-generating the hidden 4th substat at +0 and marking it `INACTIVE` so +4 is a pure state activation; sequential generation order: slot → main stat → lines (3 vs 4) → sub1 → sub2 → sub3 → sub4. |
 | **OUR DESIGN CHOICE** | Dataclass domain models, `SubstatRoll` and `EnhancementEvent` audit trail recording, explicit dependency injection. |
@@ -110,7 +111,7 @@ Current scope comprises:
 - Core RNG engine with deterministic tests.
 - Generic Probability Engine with dependency injection and input contracts.
 - Artifact domain models, configuration loader, generation pipeline, and enhancement state machine.
-- 87 deterministic automated unit tests (including strict config validation, enhancement level progression, and state corruption rejection).
+- 103 deterministic automated unit tests (including strict config validation, enhancement level progression, state corruption rejection, chi-square statistical tests, and full enhance_step coverage).
 - Minimal FastAPI service (`GET /health`).
 
 Explicitly out of scope:

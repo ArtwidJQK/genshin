@@ -96,7 +96,16 @@ class Artifact:
         self.validate_state()
 
     def validate_state(self) -> None:
-        """Validate all domain invariants for a 5★ Artifact."""
+        """Validate all domain invariants for a 5★ Artifact.
+
+        Checks include:
+        - Rarity and level bounds.
+        - Exactly 4 substat slots, each with valid enum state and slot_index.
+        - No duplicate substat types; no substat matching main stat.
+        - Inactive constraints (at most 1, must be slot 3, not allowed at level ≥ 4).
+        - Roll integrity: INACTIVE substats must have zero roll records.
+        - Total upgrade rolls must not exceed the physical maximum (5 for any 5★ artifact).
+        """
         if self.rarity != 5:
             raise ValueError(f"Artifact SPEC v1 only supports 5★ artifacts, got rarity {self.rarity}")
         if not (0 <= self.level <= 20):
@@ -118,6 +127,14 @@ class Artifact:
             if s.stat_type not in CANONICAL_SUBSTATS:
                 raise ValueError(f"Unsupported substat type: {s.stat_type}")
 
+            # Roll integrity: an INACTIVE substat must have zero enhancement roll records.
+            # (The 4th substat of a 3-line artifact is pre-generated but never rolled until active.)
+            if s.state == SubstatState.INACTIVE and len(s.rolls) > 0:
+                raise ValueError(
+                    f"Substat at slot {idx} is INACTIVE but has {len(s.rolls)} roll record(s); "
+                    "an inactive substat must have no enhancement rolls."
+                )
+
         sub_types = [s.stat_type for s in self.substats]
         if len(set(sub_types)) != 4:
             raise ValueError(f"Duplicate substat types detected: {sub_types}")
@@ -135,6 +152,18 @@ class Artifact:
             raise ValueError(f"Only slot #4 (index 3) may be inactive, found inactive at index {inactive_indices[0]}")
         if self.level >= 4 and len(inactive_indices) > 0:
             raise ValueError(f"Artifact at level {self.level} cannot have an inactive substat")
+
+        # Roll-count integrity: the physical maximum is 5 upgrade rolls per artifact
+        # (4-line base: 5 upgrades across all milestones; 3-line base: 4 upgrades).
+        # We enforce the hard upper bound of 5 here; the lower bound (4 for 3-line) is
+        # verified by the enhancement state machine and history, not by validate_state alone.
+        MAX_UPGRADE_ROLLS = 5
+        total_rolls = sum(len(s.rolls) for s in self.substats)
+        if total_rolls > MAX_UPGRADE_ROLLS:
+            raise ValueError(
+                f"Total enhancement roll count ({total_rolls}) exceeds the maximum allowed "
+                f"({MAX_UPGRADE_ROLLS}) for a 5★ artifact."
+            )
 
     @property
     def active_substats(self) -> List[Substat]:
