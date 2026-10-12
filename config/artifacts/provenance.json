@@ -1,0 +1,354 @@
+{
+  "main_stats": {
+    "FLOWER.FLAT_HP": {
+      "value": 100.0,
+      "evidence": "VERIFIED",
+      "source": "In-Game Client Help System (Artifacts > Details)",
+      "retrieved_on": "2026-10-11",
+      "valid_from_version": "1.0",
+      "notes": "Flower of Life main stat is fixed to Flat HP across all artifact sets."
+    },
+    "PLUME.FLAT_ATK": {
+      "value": 100.0,
+      "evidence": "VERIFIED",
+      "source": "In-Game Client Help System (Artifacts > Details)",
+      "retrieved_on": "2026-10-11",
+      "valid_from_version": "1.0",
+      "notes": "Plume of Death main stat is fixed to Flat ATK across all artifact sets."
+    },
+    "SANDS.HP_PERCENT": {
+      "value": 26.68,
+      "evidence": "INFERRED",
+      "source": "NGA Theorycrafting Research Thread (TID: 33220261: 圣遗物词条分布汇总一图流)",
+      "retrieved_on": "2026-10-11",
+      "valid_from_version": "1.0",
+      "notes": "Empirical relative weight among Sands candidate main stats."
+    },
+    "SANDS.ATK_PERCENT": {
+      "value": 26.66,
+      "evidence": "INFERRED",
+      "source": "NGA Theorycrafting Research Thread (TID: 33220261)",
+      "retrieved_on": "2026-10-11",
+      "valid_from_version": "1.0",
+      "notes": "Empirical relative weight among Sands candidate main stats."
+    },
+    "SANDS.DEF_PERCENT": {
+      "value": 26.66,
+      "evidence": "INFERRED",
+      "source": "NGA Theorycrafting Research Thread (TID: 33220261)",
+      "retrieved_on": "2026-10-11",
+      "valid_from_version": "1.0",
+      "notes": "Empirical relative weight among Sands candidate main stats."
+    },
+    "SANDS.ENERGY_RECHARGE": {
+      "value": 10.0,
+      "evidence": "INFERRED",
+      "source": "NGA Theorycrafting Research Thread (TID: 33220261)",
+      "retrieved_on": "2026-10-11",
+      "valid_from_version": "1.0",
+      "notes": "Empirical relative weight among Sands candidate main stats."
+    },
+    "SANDS.ELEMENTAL_MASTERY": {
+      "value": 10.0,
+      "evidence": "INFERRED",
+      "source": "NGA Theorycrafting Research Thread (TID: 33220261)",
+      "retrieved_on": "2026-10-11",
+      "valid_from_version": "1.0",
+      "notes": "Empirical relative weight among Sands candidate main stats."
+    },
+    "GOBLET.HP_PERCENT": {
+      "value": 19.25,
+      "evidence": "INFERRED",
+      "source": "NGA Theorycrafting Research Thread (TID: 33220261)",
+      "retrieved_on": "2026-10-11",
+      "valid_from_version": "1.0",
+      "notes": "Empirical relative weight among Goblet candidate main stats."
+    },
+    "GOBLET.ATK_PERCENT": {
+      "value": 19.25,
+      "evidence": "INFERRED",
+      "source": "NGA Theorycrafting Research Thread (TID: 33220261)",
+      "retrieved_on": "2026-10-11",
+      "valid_from_version": "1.0",
+      "notes": "Empirical relative weight among Goblet candidate main stats."
+    },
+    "GOBLET.DEF_PERCENT": {
+      "value": 19.0,
+      "evidence": "INFERRED",
+      "source": "NGA Theorycrafting Research Thread (TID: 33220261)",
+      "retrieved_on": "2026-10-11",
+      "valid_from_version": "1.0",
+      "notes": "Empirical relative weight among Goblet candidate main stats."
+    },
+    "GOBLET.PYRO_DMG_BONUS": {
+      "value": 5.0,
+      "evidence": "INFERRED",
+      "source": "NGA Theorycrafting Research Thread (TID: 33220261)",
+      "retrieved_on": "2026-10-11",
+      "valid_from_version": "1.0",
+      "notes": "Empirical relative weight for Pyro DMG."
+    },
+    "GOBLET.HYDRO_DMG_BONUS": {
+      "value": 5.0,
+      "evidence": "INFERRED",
+      "source": "NGA Theorycrafting Research Thread (TID: 33220261)",
+      "retrieved_on": "2026-10-11",
+      "valid_from_version": "1.0",
+      "notes": "Empirical relative weight for Hydro DMG."
+    },
+    "GOBLET.CRYO_DMG_BONUS": {
+      "value": 5.0,
+      "evidence": "INFERRED",
+      "source": "NGA Theorycrafting Research Thread (TID: 33220261)",
+      "retrieved_on": "2026-10-11",
+      "valid_from_version": "1.0",
+      "notes": "Empirical relative weight for Cryo DMG."
+    },
+    "GOBLET.ELECTRO_DMG_BONUS": {
+      "value": 5.0,
+      "evidence": "INFERRED",
+      "source": "NGA Theorycrafting Research Thread (TID: 33220261)",
+      "retrieved_on": "2026-10-11",
+      "valid_from_version": "1.0",
+      "notes": "Empirical relative weight for Electro DMG."
+    },
+    "GOBLET.ANEMO_DMG_BONUS": {
+      "value": 5.0,
+      "evidence": "INFERRED",
+      "source": "NGA Theorycrafting Research Thread (TID: 33220261)",
+      "retrieved_on": "2026-10-11",
+      "valid_from_version": "1.0",
+      "notes": "Empirical relative weight for Anemo DMG."
+    },
+    "GOBLET.GEO_DMG_BONUS": {
+      "value": 5.0,
+      "evidence": "INFERRED",
+      "source": "NGA Theorycrafting Research Thread (TID: 33220261)",
+      "retrieved_on": "2026-10-11",
+      "valid_from_version": "1.0",
+      "notes": "Empirical relative weight for Geo DMG."
+    },
+    "GOBLET.DENDRO_DMG_BONUS": {
+      "value": 5.0,
+      "evidence": "INFERRED",
+      "source": "NGA Theorycrafting Research Thread (TID: 33220261)",
+      "retrieved_on": "2026-10-11",
+      "valid_from_version": "3.0",
+      "notes": "Empirical relative weight for Dendro DMG added in v3.0."
+    },
+    "GOBLET.PHYSICAL_DMG_BONUS": {
+      "value": 5.0,
+      "evidence": "INFERRED",
+      "source": "NGA Theorycrafting Research Thread (TID: 33220261)",
+      "retrieved_on": "2026-10-11",
+      "valid_from_version": "1.0",
+      "notes": "Empirical relative weight for Physical DMG."
+    },
+    "GOBLET.ELEMENTAL_MASTERY": {
+      "value": 2.5,
+      "evidence": "INFERRED",
+      "source": "NGA Theorycrafting Research Thread (TID: 33220261)",
+      "retrieved_on": "2026-10-11",
+      "valid_from_version": "1.0",
+      "notes": "Empirical relative weight for EM on Goblet."
+    },
+    "CIRCLET.HP_PERCENT": {
+      "value": 22.0,
+      "evidence": "INFERRED",
+      "source": "NGA Theorycrafting Research Thread (TID: 33220261)",
+      "retrieved_on": "2026-10-11",
+      "valid_from_version": "1.0",
+      "notes": "Empirical relative weight for HP% on Circlet."
+    },
+    "CIRCLET.ATK_PERCENT": {
+      "value": 22.0,
+      "evidence": "INFERRED",
+      "source": "NGA Theorycrafting Research Thread (TID: 33220261)",
+      "retrieved_on": "2026-10-11",
+      "valid_from_version": "1.0",
+      "notes": "Empirical relative weight for ATK% on Circlet."
+    },
+    "CIRCLET.DEF_PERCENT": {
+      "value": 22.0,
+      "evidence": "INFERRED",
+      "source": "NGA Theorycrafting Research Thread (TID: 33220261)",
+      "retrieved_on": "2026-10-11",
+      "valid_from_version": "1.0",
+      "notes": "Empirical relative weight for DEF% on Circlet."
+    },
+    "CIRCLET.CRIT_RATE": {
+      "value": 10.0,
+      "evidence": "INFERRED",
+      "source": "NGA Theorycrafting Research Thread (TID: 33220261)",
+      "retrieved_on": "2026-10-11",
+      "valid_from_version": "1.0",
+      "notes": "Empirical relative weight for CRIT Rate on Circlet."
+    },
+    "CIRCLET.CRIT_DMG": {
+      "value": 10.0,
+      "evidence": "INFERRED",
+      "source": "NGA Theorycrafting Research Thread (TID: 33220261)",
+      "retrieved_on": "2026-10-11",
+      "valid_from_version": "1.0",
+      "notes": "Empirical relative weight for CRIT DMG on Circlet."
+    },
+    "CIRCLET.HEALING_BONUS": {
+      "value": 10.0,
+      "evidence": "INFERRED",
+      "source": "NGA Theorycrafting Research Thread (TID: 33220261)",
+      "retrieved_on": "2026-10-11",
+      "valid_from_version": "1.0",
+      "notes": "Empirical relative weight for Healing Bonus on Circlet."
+    },
+    "CIRCLET.ELEMENTAL_MASTERY": {
+      "value": 4.0,
+      "evidence": "INFERRED",
+      "source": "NGA Theorycrafting Research Thread (TID: 33220261)",
+      "retrieved_on": "2026-10-11",
+      "valid_from_version": "1.0",
+      "notes": "Empirical relative weight for EM on Circlet."
+    }
+  },
+  "substats": {
+    "FLAT_HP": {
+      "value": 6,
+      "evidence": "INFERRED",
+      "source": "NGA Research Thread (TID: 33220261: 圣遗物词条分布汇总一图流)",
+      "retrieved_on": "2026-10-11",
+      "valid_from_version": "1.0",
+      "notes": "Empirical candidate draw weight for Flat HP."
+    },
+    "FLAT_ATK": {
+      "value": 6,
+      "evidence": "INFERRED",
+      "source": "NGA Research Thread (TID: 33220261)",
+      "retrieved_on": "2026-10-11",
+      "valid_from_version": "1.0",
+      "notes": "Empirical candidate draw weight for Flat ATK."
+    },
+    "FLAT_DEF": {
+      "value": 6,
+      "evidence": "INFERRED",
+      "source": "NGA Research Thread (TID: 33220261)",
+      "retrieved_on": "2026-10-11",
+      "valid_from_version": "1.0",
+      "notes": "Empirical candidate draw weight for Flat DEF."
+    },
+    "HP_PERCENT": {
+      "value": 4,
+      "evidence": "INFERRED",
+      "source": "NGA Research Thread (TID: 33220261)",
+      "retrieved_on": "2026-10-11",
+      "valid_from_version": "1.0",
+      "notes": "Empirical candidate draw weight for HP%."
+    },
+    "ATK_PERCENT": {
+      "value": 4,
+      "evidence": "INFERRED",
+      "source": "NGA Research Thread (TID: 33220261)",
+      "retrieved_on": "2026-10-11",
+      "valid_from_version": "1.0",
+      "notes": "Empirical candidate draw weight for ATK%."
+    },
+    "DEF_PERCENT": {
+      "value": 4,
+      "evidence": "INFERRED",
+      "source": "NGA Research Thread (TID: 33220261)",
+      "retrieved_on": "2026-10-11",
+      "valid_from_version": "1.0",
+      "notes": "Empirical candidate draw weight for DEF%."
+    },
+    "ENERGY_RECHARGE": {
+      "value": 4,
+      "evidence": "INFERRED",
+      "source": "NGA Research Thread (TID: 33220261)",
+      "retrieved_on": "2026-10-11",
+      "valid_from_version": "1.0",
+      "notes": "Empirical candidate draw weight for Energy Recharge."
+    },
+    "ELEMENTAL_MASTERY": {
+      "value": 4,
+      "evidence": "INFERRED",
+      "source": "NGA Research Thread (TID: 33220261)",
+      "retrieved_on": "2026-10-11",
+      "valid_from_version": "1.0",
+      "notes": "Empirical candidate draw weight for Elemental Mastery."
+    },
+    "CRIT_RATE": {
+      "value": 3,
+      "evidence": "INFERRED",
+      "source": "NGA Research Thread (TID: 33220261)",
+      "retrieved_on": "2026-10-11",
+      "valid_from_version": "1.0",
+      "notes": "Empirical candidate draw weight for CRIT Rate."
+    },
+    "CRIT_DMG": {
+      "value": 3,
+      "evidence": "INFERRED",
+      "source": "NGA Research Thread (TID: 33220261)",
+      "retrieved_on": "2026-10-11",
+      "valid_from_version": "1.0",
+      "notes": "Empirical candidate draw weight for CRIT DMG."
+    }
+  },
+  "roll_values": {
+    "tier_weights": {
+      "value": {"70%": 25, "80%": 25, "90%": 25, "100%": 25},
+      "evidence": "INFERRED",
+      "source": "KeqingMains Artifact Guide (https://keqingmains.com/misc/artifacts/)",
+      "retrieved_on": "2026-10-11",
+      "valid_from_version": "1.0",
+      "notes": "Empirical consensus on uniform 1:1:1:1 tier draw."
+    },
+    "values": {
+      "value": "40 discrete roll values across 10 substats and 4 tiers",
+      "evidence": "VERIFIED",
+      "source": "Dimbreath / AnimeGameData (ExcelBinOutput/ReliquaryAffixExcelConfigData.json)",
+      "retrieved_on": "2026-10-11",
+      "valid_from_version": "1.0",
+      "notes": "Exact numerical roll constants extracted directly from client configuration."
+    }
+  },
+  "rules": {
+    "rarity": {
+      "value": 5,
+      "evidence": "VERIFIED",
+      "source": "In-Game Client Help System",
+      "retrieved_on": "2026-10-11",
+      "valid_from_version": "1.0",
+      "notes": "Target rarity is 5 stars."
+    },
+    "max_level": {
+      "value": 20,
+      "evidence": "VERIFIED",
+      "source": "In-Game Client Help System",
+      "retrieved_on": "2026-10-11",
+      "valid_from_version": "1.0",
+      "notes": "Maximum enhancement level for 5★ artifacts is 20."
+    },
+    "milestone_levels": {
+      "value": [4, 8, 12, 16, 20],
+      "evidence": "VERIFIED",
+      "source": "In-Game Client Help System",
+      "retrieved_on": "2026-10-11",
+      "valid_from_version": "1.0",
+      "notes": "Enhancement milestones occur every 4 levels."
+    },
+    "num_substat_slots": {
+      "value": 4,
+      "evidence": "VERIFIED",
+      "source": "In-Game Client Help System",
+      "retrieved_on": "2026-10-11",
+      "valid_from_version": "1.0",
+      "notes": "Maximum substat count on 5★ artifacts is strictly 4."
+    },
+    "initial_line_count_weights": {
+      "value": {"3": 80, "4": 20},
+      "evidence": "INFERRED",
+      "source": "Genshin Data Gathering Team (Domain of Blessing Drops Archive)",
+      "retrieved_on": "2026-10-11",
+      "valid_from_version": "1.0",
+      "notes": "Applies strictly to Domain of Blessing drops. Strongbox/Bosses (66/34) will be added in P3."
+    }
+  }
+}

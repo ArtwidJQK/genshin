@@ -178,3 +178,52 @@ def load_artifact_config(config_dir: Union[Path, str, None] = None) -> ArtifactC
         max_level=max_level,
         milestone_levels=milestone_levels,
     )
+
+
+def load_and_validate_artifact_config(
+    config_dir: Union[Path, str, None] = None,
+    fidelity_mode: Optional[Union["FidelityMode", str]] = None,
+) -> ArtifactConfig:
+    """
+    Load, validate against Pydantic schema, and check provenance fidelity mode.
+    Raises ValueError if schemas are invalid or if constants violate the fidelity mode.
+    """
+    from app.core.artifact.schema import (
+        FidelityMode,
+        MainStatsConfigSchema,
+        RollValuesConfigSchema,
+        RulesConfigSchema,
+        SubstatsConfigSchema,
+        validate_config_provenance_fidelity,
+    )
+
+    if config_dir is None:
+        base_path = Path(__file__).resolve().parent.parent.parent.parent / "config" / "artifacts"
+    else:
+        base_path = Path(config_dir)
+
+    # 1. Validate raw JSON via Pydantic schemas
+    with open(base_path / "main_stats.json", "r", encoding="utf-8") as f:
+        MainStatsConfigSchema.model_validate(json.load(f))
+    with open(base_path / "substats.json", "r", encoding="utf-8") as f:
+        SubstatsConfigSchema.model_validate(json.load(f))
+    with open(base_path / "roll_values.json", "r", encoding="utf-8") as f:
+        RollValuesConfigSchema.model_validate(json.load(f))
+    with open(base_path / "rules.json", "r", encoding="utf-8") as f:
+        RulesConfigSchema.model_validate(json.load(f))
+
+    # 2. If fidelity_mode specified, validate against provenance records
+    if fidelity_mode is not None:
+        prov_path = base_path / "provenance.json"
+        if not prov_path.exists():
+            raise FileNotFoundError(f"Provenance catalog required for fidelity mode verification: {prov_path}")
+        violations = validate_config_provenance_fidelity(prov_path, mode=fidelity_mode)
+        if violations:
+            mode_str = fidelity_mode.value if isinstance(fidelity_mode, FidelityMode) else str(fidelity_mode)
+            raise ValueError(
+                f"Configuration does not satisfy fidelity mode '{mode_str}'. "
+                f"Violations ({len(violations)}):\n" + "\n".join(violations[:5])
+            )
+
+    return load_artifact_config(config_dir=base_path)
+
