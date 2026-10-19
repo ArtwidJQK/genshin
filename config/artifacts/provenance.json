@@ -510,5 +510,119 @@
       "valid_from_version": "1.0",
       "notes": "Exact 21-level progression curve extracted directly from client configuration."
     }
+  },
+  "loot_sources": {
+    "domain.cost_original_resin": {
+      "value": 20,
+      "evidence": "VERIFIED",
+      "source": "In-Game Client UI (Domain Entrance / Claim Rewards Prompt)",
+      "retrieved_on": "2026-10-20",
+      "valid_from_version": "1.0",
+      "notes": "Fixed resin cost to claim domain rewards."
+    },
+    "domain.cost_condensed_resin": {
+      "value": 40,
+      "evidence": "VERIFIED",
+      "source": "In-Game Client UI (Alchemy Crafting / Domain Claim Prompt)",
+      "retrieved_on": "2026-10-20",
+      "valid_from_version": "1.1",
+      "notes": "1 Condensed Resin crafted from 40 Original Resin + 1 Crystal Core."
+    },
+    "domain.condensed_multiplier": {
+      "value": 2,
+      "evidence": "VERIFIED",
+      "source": "In-Game Tutorial (Help Menu: Condensed Resin)",
+      "retrieved_on": "2026-10-20",
+      "valid_from_version": "1.1",
+      "notes": "Consuming 1 Condensed Resin yields exactly double the reward drops of a 20-resin run."
+    },
+    "domain.featured_set_count": {
+      "value": 2,
+      "evidence": "VERIFIED",
+      "source": "In-Game Domain Details (Domain Entrance: Artifacts reward list)",
+      "retrieved_on": "2026-10-20",
+      "valid_from_version": "1.0",
+      "notes": "Every Level 90 Domain of Blessing drops exactly 2 distinct 5★ sets."
+    },
+    "domain.set_distribution_weights": {
+      "value": "50 / 50",
+      "evidence": "INFERRED",
+      "source": "Genshin Data Gathering Team (Google Sheet: Artifact Drop Rates, Tab: Domain Rewards, Section Set Distribution, N > 100,000)",
+      "retrieved_on": "2026-10-20",
+      "valid_from_version": "1.0",
+      "notes": "Empirical parity across >100,000 recorded drops (49.98% : 50.02%). Does not prove internal server integer weights."
+    },
+    "domain.guaranteed_5star_quantity": {
+      "value": 1,
+      "evidence": "VERIFIED",
+      "source": "In-Game Client UI (Level 90 Domain of Blessing Description & Reward Preview)",
+      "retrieved_on": "2026-10-20",
+      "valid_from_version": "1.0",
+      "notes": "At least one 5★ artifact is guaranteed per 20 Original Resin at highest difficulty."
+    },
+    "domain.secondary_5star_probability": {
+      "value": 0.0654,
+      "evidence": "INFERRED",
+      "source": "Genshin Data Gathering Team (Google Sheet: Artifact Drop Rates, Tab: Artifact Quantity, column 2x 5★ Rate, N = 48,932)",
+      "retrieved_on": "2026-10-20",
+      "valid_from_version": "1.0",
+      "notes": "Empirical secondary drop rate (~6.54% ± 0.22%, mean ~1.065 5★ per 20 resin). Prohibited in STRICT mode."
+    },
+    "domain.fodder_4star_baseline": {
+      "value": 2,
+      "evidence": "INFERRED",
+      "source": "Genshin Data Gathering Team (Google Sheet: Artifact Drop Rates, Tab: Artifact Quantity, column 4★ Drops)",
+      "retrieved_on": "2026-10-20",
+      "valid_from_version": "1.0",
+      "notes": "Minimum 2 4★ artifacts observed per 20 resin at Level 90 in player datasets. Reclassified to INFERRED per F3."
+    },
+    "domain.fodder_4star_secondary_probability": {
+      "value": 0.48,
+      "evidence": "INFERRED",
+      "source": "Genshin Data Gathering Team (Google Sheet: Artifact Drop Rates, Tab: Artifact Quantity, column 4★ Drops)",
+      "retrieved_on": "2026-10-20",
+      "valid_from_version": "1.0",
+      "notes": "Empirical ~48% chance of a 3rd 4★ artifact (mean ~2.48)."
+    },
+    "domain.initial_line_count_weights": {
+      "value": "80 / 20",
+      "evidence": "INFERRED",
+      "source": "Genshin Data Gathering Team (Sheet: Artifact Quality & Affixes, Tab: Artifact Quality (Domains), N = 34,228)",
+      "retrieved_on": "2026-10-20",
+      "valid_from_version": "1.0",
+      "notes": "Empirical 80% 3-line vs 20% 4-line for Domain drops (79.9% : 20.1%)."
+    },
+    "slot_distribution": {
+      "value": "Uniform 20%",
+      "evidence": "INFERRED",
+      "source": "Genshin Data Gathering Team (Google Sheet: Artifact Drop Rates, Tab: Slot Distribution, N > 100,000)",
+      "retrieved_on": "2026-10-20",
+      "valid_from_version": "1.0",
+      "notes": "Equal 20.0% ± 0.2% frequency across all 5 slots (1:1:1:1:1)."
+    },
+    "strongbox.sacrifice_ratio": {
+      "value": 3,
+      "evidence": "VERIFIED",
+      "source": "In-Game Mystic Offering UI (Crafting Bench: Mystic Offering)",
+      "retrieved_on": "2026-10-20",
+      "valid_from_version": "2.0",
+      "notes": "Exactly 3 5★ artifacts consumed per 1 crafted artifact."
+    },
+    "strongbox.allowed_sacrifice_rarity": {
+      "value": 5,
+      "evidence": "VERIFIED",
+      "source": "In-Game Mystic Offering UI (Crafting Bench: Mystic Offering)",
+      "retrieved_on": "2026-10-20",
+      "valid_from_version": "2.0",
+      "notes": "Only 5★ rarity artifacts can be placed into Mystic Offering."
+    },
+    "strongbox.initial_line_count_weights": {
+      "value": "66 / 34",
+      "evidence": "INFERRED",
+      "source": "NGA Research Thread / Genshin Data Gathering (NGA TID: 33220261 / Sheet: Strongbox Quality, N = 15,280)",
+      "retrieved_on": "2026-10-20",
+      "valid_from_version": "2.0",
+      "notes": "Empirical ~2:1 ratio (65.8% : 34.2%). Rounded approximate empirical model; NOT an official game rule. Prohibited in STRICT mode."
+    }
   }
 }

@@ -36,6 +36,9 @@ filterwarnings = [
     "ignore::starlette.testclient.StarletteDeprecationWarning",
     "ignore::DeprecationWarning:starlette.*",
 ]
+markers = [
+    "slow: marks tests as slow (heavy statistical simulations)",
+]
 
 [tool.ruff]
 line-length = 100

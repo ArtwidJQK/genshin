@@ -202,6 +202,94 @@ class MainStatScalingConfigSchema(BaseModel):
         return self
 
 
+class DomainLootConfigSchema(BaseModel):
+    """Pydantic validation schema for domain_of_blessing in loot_sources.json."""
+    model_config = ConfigDict(extra="forbid")
+
+    cost_original_resin: int = 20
+    cost_condensed_resin: int = 40
+    condensed_multiplier: int = 2
+    featured_set_count: int = 2
+    set_distribution_weights: Dict[str, float]
+    guaranteed_5star_quantity: int = 1
+    secondary_5star_probability: float = 0.0654
+    fodder_4star_baseline: int = 2
+    fodder_4star_secondary_probability: float = 0.48
+    initial_line_count_weights: Dict[str, float]
+
+    @model_validator(mode="after")
+    def validate_domain_loot(self) -> "DomainLootConfigSchema":
+        if self.cost_original_resin != 20:
+            raise ValueError(f"Domain cost_original_resin must be 20, got {self.cost_original_resin}")
+        if self.cost_condensed_resin != 40:
+            raise ValueError(f"Domain cost_condensed_resin must be 40, got {self.cost_condensed_resin}")
+        if self.condensed_multiplier != 2:
+            raise ValueError(f"Domain condensed_multiplier must be 2, got {self.condensed_multiplier}")
+        if self.featured_set_count != 2:
+            raise ValueError(f"Domain featured_set_count must be 2, got {self.featured_set_count}")
+        if self.guaranteed_5star_quantity != 1:
+            raise ValueError(f"Domain guaranteed_5star_quantity must be 1, got {self.guaranteed_5star_quantity}")
+        if self.fodder_4star_baseline != 2:
+            raise ValueError(f"Domain fodder_4star_baseline must be 2, got {self.fodder_4star_baseline}")
+        if not (0.0 <= self.secondary_5star_probability <= 1.0):
+            raise ValueError(f"secondary_5star_probability must be in [0.0, 1.0], got {self.secondary_5star_probability}")
+        if not (0.0 <= self.fodder_4star_secondary_probability <= 1.0):
+            raise ValueError(f"fodder_4star_secondary_probability must be in [0.0, 1.0], got {self.fodder_4star_secondary_probability}")
+        if len(self.set_distribution_weights) != 2:
+            raise ValueError(f"set_distribution_weights must define exactly 2 sets, got {len(self.set_distribution_weights)}")
+        set_total = 0.0
+        for k, w in self.set_distribution_weights.items():
+            if isinstance(w, bool) or not isinstance(w, (int, float)) or not math.isfinite(w) or w < 0:
+                raise ValueError(f"Set weight for '{k}' must be non-negative finite number, got {w}")
+            set_total += float(w)
+        if set_total <= 0:
+            raise ValueError("Total set_distribution_weights must be > 0.")
+        if set(self.initial_line_count_weights.keys()) != {"3", "4"}:
+            raise ValueError(f"initial_line_count_weights must define keys '3' and '4', got {set(self.initial_line_count_weights.keys())}")
+        line_total = 0.0
+        for k, w in self.initial_line_count_weights.items():
+            if isinstance(w, bool) or not isinstance(w, (int, float)) or not math.isfinite(w) or w < 0:
+                raise ValueError(f"Line count weight for '{k}' must be non-negative finite number, got {w}")
+            line_total += float(w)
+        if line_total <= 0:
+            raise ValueError("Total initial_line_count_weights must be > 0.")
+        return self
+
+
+class StrongboxLootConfigSchema(BaseModel):
+    """Pydantic validation schema for artifact_strongbox in loot_sources.json."""
+    model_config = ConfigDict(extra="forbid")
+
+    sacrifice_ratio: int = 3
+    allowed_sacrifice_rarity: int = 5
+    initial_line_count_weights: Dict[str, float]
+
+    @model_validator(mode="after")
+    def validate_strongbox_loot(self) -> "StrongboxLootConfigSchema":
+        if self.sacrifice_ratio != 3:
+            raise ValueError(f"Strongbox sacrifice_ratio must be 3, got {self.sacrifice_ratio}")
+        if self.allowed_sacrifice_rarity != 5:
+            raise ValueError(f"Strongbox allowed_sacrifice_rarity must be 5, got {self.allowed_sacrifice_rarity}")
+        if set(self.initial_line_count_weights.keys()) != {"3", "4"}:
+            raise ValueError(f"initial_line_count_weights must define keys '3' and '4', got {set(self.initial_line_count_weights.keys())}")
+        line_total = 0.0
+        for k, w in self.initial_line_count_weights.items():
+            if isinstance(w, bool) or not isinstance(w, (int, float)) or not math.isfinite(w) or w < 0:
+                raise ValueError(f"Line count weight for '{k}' must be non-negative finite number, got {w}")
+            line_total += float(w)
+        if line_total <= 0:
+            raise ValueError("Total initial_line_count_weights must be > 0.")
+        return self
+
+
+class LootSourcesConfigSchema(BaseModel):
+    """Pydantic validation schema for config/artifacts/loot_sources.json."""
+    model_config = ConfigDict(extra="forbid")
+
+    domain_of_blessing: DomainLootConfigSchema
+    artifact_strongbox: StrongboxLootConfigSchema
+
+
 def load_provenance_catalog(provenance_path: Union[Path, str]) -> Dict[str, Dict[str, ProvenanceRecord]]:
     """Load and parse the provenance catalog JSON file."""
     path = Path(provenance_path)

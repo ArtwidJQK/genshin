@@ -1,0 +1,28 @@
+{
+  "domain_of_blessing": {
+    "cost_original_resin": 20,
+    "cost_condensed_resin": 40,
+    "condensed_multiplier": 2,
+    "featured_set_count": 2,
+    "set_distribution_weights": {
+      "set_a": 50,
+      "set_b": 50
+    },
+    "guaranteed_5star_quantity": 1,
+    "secondary_5star_probability": 0.0654,
+    "fodder_4star_baseline": 2,
+    "fodder_4star_secondary_probability": 0.48,
+    "initial_line_count_weights": {
+      "3": 80,
+      "4": 20
+    }
+  },
+  "artifact_strongbox": {
+    "sacrifice_ratio": 3,
+    "allowed_sacrifice_rarity": 5,
+    "initial_line_count_weights": {
+      "3": 66,
+      "4": 34
+    }
+  }
+}

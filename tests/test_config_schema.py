@@ -44,6 +44,12 @@ def test_pydantic_schemas_validate_current_config_files():
         assert rules.num_substat_slots == 4
         assert rules.max_level == 20
 
+    with open(CONFIG_DIR / "loot_sources.json", "r", encoding="utf-8") as f:
+        from app.core.artifact.schema import LootSourcesConfigSchema
+        loot_sources = LootSourcesConfigSchema.model_validate(json.load(f))
+        assert loot_sources.domain_of_blessing.cost_original_resin == 20
+        assert loot_sources.artifact_strongbox.sacrifice_ratio == 3
+
 
 def test_provenance_catalog_contains_all_constants_with_required_fields():
     """Every constant in the provenance catalog has mandatory fields per AGENTS.md 5.1."""
@@ -53,6 +59,7 @@ def test_provenance_catalog_contains_all_constants_with_required_fields():
     assert "substats" in catalog
     assert "roll_values" in catalog
     assert "rules" in catalog
+    assert "loot_sources" in catalog
 
     for section_name, entries in catalog.items():
         assert len(entries) > 0, f"Section {section_name} is empty"
