@@ -70,7 +70,7 @@ class Substat:
     def value(self) -> float:
         """Total current value computed as initial value + all enhancement increments."""
         total = self.initial_value + sum(r.increment for r in self.rolls)
-        return round(total, 4)
+        return total
 
 
 @dataclass
