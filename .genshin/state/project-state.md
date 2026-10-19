@@ -112,5 +112,5 @@
 
 - **In progress:** P2 Step 2 — separate display formatting from internal value accumulation and add property-based tests for artifact slot, generation, enhancement, and determinism invariants.
 - **Review gates:** Full CI suite and adversarial review must pass before merging the task branch.
-- **Next after this gate:** P2 Step 3 — source-specific loot-source rules (Domain first), with Strongbox as a separate researched module. Do not implement Reshaping while OQ-03 remains blocked.
+- **Next after this gate:** Finish remaining P2 core work by exposing and testing the imported main-stat value curve for the artifact's current level; then continue to P3 source-specific loot rules (Domain first) and Strongbox as a separate researched module. Do not implement Reshaping while OQ-03 remains blocked.
 - **Gacha implementation:** remains blocked on an approved Capturing Radiance model; do not invent a default.

@@ -39,6 +39,7 @@ def test_artifact_generation_and_enhancement_invariants(seed, slot, initial_line
     assert artifact.slot == slot
     assert len(artifact.substats) == 4
     assert len({substat.stat_type for substat in artifact.substats}) == 4
+    assert artifact.main_stat in engine.config.main_stats[slot]
     assert artifact.main_stat not in {substat.stat_type for substat in artifact.substats}
     assert all(substat.slot_index == index for index, substat in enumerate(artifact.substats))
     assert all(substat.stat_type in engine.config.substat_weights for substat in artifact.substats)

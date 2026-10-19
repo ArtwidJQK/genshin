@@ -15,7 +15,7 @@ Separate internal roll-value accumulation from display rounding and property-tes
 ## Verification
 - The preceding reported baseline was 123 passed with 2 dependency deprecation warnings.
 - Local commands cannot be run through the GitHub connector. The branch must pass the existing GitHub Actions matrix on Python 3.11 and 3.12 before merge.
-- The formatter and tests intentionally do not implement loot-source rules, main-stat state transitions, Gacha, or Reshaping.
+- The formatter and tests intentionally do not implement loot-source rules, Gacha, or Reshaping. The imported main-stat curve still needs to be exposed through the Artifact domain contract as the next P2 task.
 
 ## Evidence and risks
 - Display precision follows docs/SPEC_ARTIFACT.md section 3.4.
