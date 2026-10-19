@@ -167,6 +167,41 @@ class RulesConfigSchema(BaseModel):
         return self
 
 
+class MainStatScalingConfigSchema(BaseModel):
+    """Pydantic validation schema for config/artifacts/main_stat_scaling.json."""
+    model_config = ConfigDict(extra="forbid")
+
+    rarity: int = 5
+    max_level: int = 20
+    stats: Dict[str, Dict[str, float]]
+
+    @model_validator(mode="after")
+    def validate_scaling(self) -> "MainStatScalingConfigSchema":
+        if self.rarity != 5:
+            raise ValueError(f"Rarity must be 5, got {self.rarity}")
+        if self.max_level != 20:
+            raise ValueError(f"Max level must be 20, got {self.max_level}")
+        if set(self.stats.keys()) != VALID_MAIN_STATS:
+            diff = set(self.stats.keys()).symmetric_difference(VALID_MAIN_STATS)
+            raise ValueError(f"Main stat scaling must define exactly the 18 valid main stats, mismatch: {diff}")
+        expected_levels = {str(i) for i in range(self.max_level + 1)}
+        for stat, levels in self.stats.items():
+            if set(levels.keys()) != expected_levels:
+                diff = set(levels.keys()).symmetric_difference(expected_levels)
+                raise ValueError(f"Stat '{stat}' must contain levels 0-{self.max_level}, mismatch: {diff}")
+            prev = None
+            for i in range(self.max_level + 1):
+                val = levels[str(i)]
+                if isinstance(val, bool) or not isinstance(val, (int, float)) or not math.isfinite(val) or val <= 0:
+                    raise ValueError(f"Value for '{stat}' at level {i} must be positive and finite, got {val}")
+                if prev is not None and val <= prev:
+                    raise ValueError(
+                        f"Value for '{stat}' at level {i} ({val}) is not strictly greater than level {i-1} ({prev})"
+                    )
+                prev = val
+        return self
+
+
 def load_provenance_catalog(provenance_path: Union[Path, str]) -> Dict[str, Dict[str, ProvenanceRecord]]:
     """Load and parse the provenance catalog JSON file."""
     path = Path(provenance_path)

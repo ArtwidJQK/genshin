@@ -15,8 +15,10 @@ CANONICAL_SUBSTATS = frozenset({
     "CRIT_DMG",
 })
 
+# Flat DEF is never a valid main stat on any 5★ artifact slot in Genshin Impact.
+# The valid 5★ main stat set contains exactly 18 properties.
 VALID_MAIN_STATS = frozenset(
-    CANONICAL_SUBSTATS
+    (CANONICAL_SUBSTATS - {"FLAT_DEF"})
     | {
         "PHYSICAL_DMG_BONUS",
         "PYRO_DMG_BONUS",
@@ -29,6 +31,8 @@ VALID_MAIN_STATS = frozenset(
         "HEALING_BONUS",
     }
 )
+
+ALL_ARTIFACT_PROPERTIES = frozenset(CANONICAL_SUBSTATS | VALID_MAIN_STATS)
 
 
 class ArtifactSlot(str, Enum):

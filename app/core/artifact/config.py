@@ -2,7 +2,7 @@ import json
 import math
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, List, Union
+from typing import Dict, List, Optional, Union
 
 from app.core.artifact.models import (
     CANONICAL_SUBSTATS,
@@ -25,6 +25,7 @@ class ArtifactConfig:
     num_substat_slots: int = 4
     max_level: int = 20
     milestone_levels: List[int] = field(default_factory=lambda: [4, 8, 12, 16, 20])
+    main_stat_scaling: Optional[Dict[str, Dict[int, float]]] = None
 
     def __post_init__(self) -> None:
         self.validate()
@@ -120,6 +121,27 @@ class ArtifactConfig:
         if lines_total <= 0:
             raise ValueError("Total initial line weight must be strictly greater than 0")
 
+        # 7. Main stat scaling validation (if provided)
+        if self.main_stat_scaling is not None:
+            if set(self.main_stat_scaling.keys()) != VALID_MAIN_STATS:
+                diff = set(self.main_stat_scaling.keys()).symmetric_difference(VALID_MAIN_STATS)
+                raise ValueError(f"main_stat_scaling must contain exactly the 18 valid main stats, mismatch: {diff}")
+            expected_levels = set(range(self.max_level + 1))
+            for stat, levels in self.main_stat_scaling.items():
+                if set(levels.keys()) != expected_levels:
+                    diff = set(levels.keys()).symmetric_difference(expected_levels)
+                    raise ValueError(f"main_stat_scaling['{stat}'] must contain levels 0-{self.max_level}, mismatch: {diff}")
+                prev = None
+                for lvl in range(self.max_level + 1):
+                    val = levels[lvl]
+                    if isinstance(val, bool) or not isinstance(val, (int, float)) or not math.isfinite(val):
+                        raise ValueError(f"main_stat_scaling['{stat}'][{lvl}] must be a finite number, got {val}")
+                    if val <= 0:
+                        raise ValueError(f"main_stat_scaling['{stat}'][{lvl}] must be strictly positive, got {val}")
+                    if prev is not None and val <= prev:
+                        raise ValueError(f"main_stat_scaling['{stat}'][{lvl}] ({val}) is not strictly greater than previous level ({prev})")
+                    prev = val
+
 
 def load_artifact_config(config_dir: Union[Path, str, None] = None) -> ArtifactConfig:
     """Load and validate artifact configuration files from the specified or default directory."""
@@ -167,6 +189,17 @@ def load_artifact_config(config_dir: Union[Path, str, None] = None) -> ArtifactC
     max_level = int(rules_raw.get("max_level", 20))
     milestone_levels = [int(x) for x in rules_raw.get("milestone_levels", [4, 8, 12, 16, 20])]
 
+    main_stat_scaling_path = base_path / "main_stat_scaling.json"
+    main_stat_scaling: Optional[Dict[str, Dict[int, float]]] = None
+    if main_stat_scaling_path.exists():
+        with open(main_stat_scaling_path, "r", encoding="utf-8") as f:
+            scaling_raw = json.load(f)
+        stats_dict = scaling_raw.get("stats", scaling_raw)
+        main_stat_scaling = {
+            stat: {int(k): float(v) for k, v in levels.items()}
+            for stat, levels in stats_dict.items()
+        }
+
     return ArtifactConfig(
         main_stats=main_stats,
         substat_weights=substat_weights,
@@ -177,6 +210,7 @@ def load_artifact_config(config_dir: Union[Path, str, None] = None) -> ArtifactC
         num_substat_slots=num_substat_slots,
         max_level=max_level,
         milestone_levels=milestone_levels,
+        main_stat_scaling=main_stat_scaling,
     )
 
 
@@ -191,6 +225,7 @@ def load_and_validate_artifact_config(
     from app.core.artifact.schema import (
         FidelityMode,
         MainStatsConfigSchema,
+        MainStatScalingConfigSchema,
         RollValuesConfigSchema,
         RulesConfigSchema,
         SubstatsConfigSchema,
@@ -211,6 +246,10 @@ def load_and_validate_artifact_config(
         RollValuesConfigSchema.model_validate(json.load(f))
     with open(base_path / "rules.json", "r", encoding="utf-8") as f:
         RulesConfigSchema.model_validate(json.load(f))
+    scaling_path = base_path / "main_stat_scaling.json"
+    if scaling_path.exists():
+        with open(scaling_path, "r", encoding="utf-8") as f:
+            MainStatScalingConfigSchema.model_validate(json.load(f))
 
     # 2. If fidelity_mode specified, validate against provenance records
     if fidelity_mode is not None:

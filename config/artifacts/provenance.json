@@ -19,7 +19,7 @@
     "SANDS.HP_PERCENT": {
       "value": 26.68,
       "evidence": "INFERRED",
-      "source": "NGA Theorycrafting Research Thread (TID: 33220261: 圣遗物词条分布汇总一图流)",
+      "source": "NGA Theorycrafting Research Thread (TID: 33220261: \u5723\u9057\u7269\u8bcd\u6761\u5206\u5e03\u6c47\u603b\u4e00\u56fe\u6d41)",
       "retrieved_on": "2026-10-11",
       "valid_from_version": "1.0",
       "notes": "Empirical relative weight among Sands candidate main stats."
@@ -213,7 +213,7 @@
     "FLAT_HP": {
       "value": 6,
       "evidence": "INFERRED",
-      "source": "NGA Research Thread (TID: 33220261: 圣遗物词条分布汇总一图流)",
+      "source": "NGA Research Thread (TID: 33220261: \u5723\u9057\u7269\u8bcd\u6761\u5206\u5e03\u6c47\u603b\u4e00\u56fe\u6d41)",
       "retrieved_on": "2026-10-11",
       "valid_from_version": "1.0",
       "notes": "Empirical candidate draw weight for Flat HP."
@@ -293,7 +293,12 @@
   },
   "roll_values": {
     "tier_weights": {
-      "value": {"70%": 25, "80%": 25, "90%": 25, "100%": 25},
+      "value": {
+        "70%": 25,
+        "80%": 25,
+        "90%": 25,
+        "100%": 25
+      },
       "evidence": "INFERRED",
       "source": "KeqingMains Artifact Guide (https://keqingmains.com/misc/artifacts/)",
       "retrieved_on": "2026-10-11",
@@ -324,10 +329,16 @@
       "source": "In-Game Client Help System",
       "retrieved_on": "2026-10-11",
       "valid_from_version": "1.0",
-      "notes": "Maximum enhancement level for 5★ artifacts is 20."
+      "notes": "Maximum enhancement level for 5\u2605 artifacts is 20."
     },
     "milestone_levels": {
-      "value": [4, 8, 12, 16, 20],
+      "value": [
+        4,
+        8,
+        12,
+        16,
+        20
+      ],
       "evidence": "VERIFIED",
       "source": "In-Game Client Help System",
       "retrieved_on": "2026-10-11",
@@ -340,15 +351,164 @@
       "source": "In-Game Client Help System",
       "retrieved_on": "2026-10-11",
       "valid_from_version": "1.0",
-      "notes": "Maximum substat count on 5★ artifacts is strictly 4."
+      "notes": "Maximum substat count on 5\u2605 artifacts is strictly 4."
     },
     "initial_line_count_weights": {
-      "value": {"3": 80, "4": 20},
+      "value": {
+        "3": 80,
+        "4": 20
+      },
       "evidence": "INFERRED",
       "source": "Genshin Data Gathering Team (Domain of Blessing Drops Archive)",
       "retrieved_on": "2026-10-11",
       "valid_from_version": "1.0",
       "notes": "Applies strictly to Domain of Blessing drops. Strongbox/Bosses (66/34) will be added in P3."
+    }
+  },
+  "main_stat_scaling": {
+    "ANEMO_DMG_BONUS": {
+      "value": "21 levels scaling from 7.0 to 46.6",
+      "evidence": "VERIFIED",
+      "source": "Dimbreath / AnimeGameData (ExcelBinOutput/ReliquaryLevelExcelConfigData.json: rank=5, propType=FIGHT_PROP_WIND_ADD_HURT)",
+      "retrieved_on": "2026-10-15",
+      "valid_from_version": "1.0",
+      "notes": "Exact 21-level progression curve extracted directly from client configuration."
+    },
+    "ATK_PERCENT": {
+      "value": "21 levels scaling from 7.0 to 46.6",
+      "evidence": "VERIFIED",
+      "source": "Dimbreath / AnimeGameData (ExcelBinOutput/ReliquaryLevelExcelConfigData.json: rank=5, propType=FIGHT_PROP_ATTACK_PERCENT)",
+      "retrieved_on": "2026-10-15",
+      "valid_from_version": "1.0",
+      "notes": "Exact 21-level progression curve extracted directly from client configuration."
+    },
+    "CRIT_DMG": {
+      "value": "21 levels scaling from 9.3 to 62.2",
+      "evidence": "VERIFIED",
+      "source": "Dimbreath / AnimeGameData (ExcelBinOutput/ReliquaryLevelExcelConfigData.json: rank=5, propType=FIGHT_PROP_CRITICAL_HURT)",
+      "retrieved_on": "2026-10-15",
+      "valid_from_version": "1.0",
+      "notes": "Exact 21-level progression curve extracted directly from client configuration."
+    },
+    "CRIT_RATE": {
+      "value": "21 levels scaling from 4.7 to 31.1",
+      "evidence": "VERIFIED",
+      "source": "Dimbreath / AnimeGameData (ExcelBinOutput/ReliquaryLevelExcelConfigData.json: rank=5, propType=FIGHT_PROP_CRITICAL)",
+      "retrieved_on": "2026-10-15",
+      "valid_from_version": "1.0",
+      "notes": "Exact 21-level progression curve extracted directly from client configuration."
+    },
+    "CRYO_DMG_BONUS": {
+      "value": "21 levels scaling from 7.0 to 46.6",
+      "evidence": "VERIFIED",
+      "source": "Dimbreath / AnimeGameData (ExcelBinOutput/ReliquaryLevelExcelConfigData.json: rank=5, propType=FIGHT_PROP_ICE_ADD_HURT)",
+      "retrieved_on": "2026-10-15",
+      "valid_from_version": "1.0",
+      "notes": "Exact 21-level progression curve extracted directly from client configuration."
+    },
+    "DEF_PERCENT": {
+      "value": "21 levels scaling from 8.7 to 58.3",
+      "evidence": "VERIFIED",
+      "source": "Dimbreath / AnimeGameData (ExcelBinOutput/ReliquaryLevelExcelConfigData.json: rank=5, propType=FIGHT_PROP_DEFENSE_PERCENT)",
+      "retrieved_on": "2026-10-15",
+      "valid_from_version": "1.0",
+      "notes": "Exact 21-level progression curve extracted directly from client configuration."
+    },
+    "DENDRO_DMG_BONUS": {
+      "value": "21 levels scaling from 7.0 to 46.6",
+      "evidence": "VERIFIED",
+      "source": "Dimbreath / AnimeGameData (ExcelBinOutput/ReliquaryLevelExcelConfigData.json: rank=5, propType=FIGHT_PROP_GRASS_ADD_HURT)",
+      "retrieved_on": "2026-10-15",
+      "valid_from_version": "3.0",
+      "notes": "Added to client configuration in Version 3.0 (Sumeru)."
+    },
+    "ELECTRO_DMG_BONUS": {
+      "value": "21 levels scaling from 7.0 to 46.6",
+      "evidence": "VERIFIED",
+      "source": "Dimbreath / AnimeGameData (ExcelBinOutput/ReliquaryLevelExcelConfigData.json: rank=5, propType=FIGHT_PROP_ELEC_ADD_HURT)",
+      "retrieved_on": "2026-10-15",
+      "valid_from_version": "1.0",
+      "notes": "Exact 21-level progression curve extracted directly from client configuration."
+    },
+    "ELEMENTAL_MASTERY": {
+      "value": "21 levels scaling from 28.0 to 186.5",
+      "evidence": "VERIFIED",
+      "source": "Dimbreath / AnimeGameData (ExcelBinOutput/ReliquaryLevelExcelConfigData.json: rank=5, propType=FIGHT_PROP_ELEMENT_MASTERY)",
+      "retrieved_on": "2026-10-15",
+      "valid_from_version": "1.0",
+      "notes": "Exact 21-level progression curve extracted directly from client configuration."
+    },
+    "ENERGY_RECHARGE": {
+      "value": "21 levels scaling from 7.8 to 51.8",
+      "evidence": "VERIFIED",
+      "source": "Dimbreath / AnimeGameData (ExcelBinOutput/ReliquaryLevelExcelConfigData.json: rank=5, propType=FIGHT_PROP_CHARGE_EFFICIENCY)",
+      "retrieved_on": "2026-10-15",
+      "valid_from_version": "1.0",
+      "notes": "Exact 21-level progression curve extracted directly from client configuration."
+    },
+    "FLAT_ATK": {
+      "value": "21 levels scaling from 47.0 to 311.0",
+      "evidence": "VERIFIED",
+      "source": "Dimbreath / AnimeGameData (ExcelBinOutput/ReliquaryLevelExcelConfigData.json: rank=5, propType=FIGHT_PROP_ATTACK)",
+      "retrieved_on": "2026-10-15",
+      "valid_from_version": "1.0",
+      "notes": "Exact 21-level progression curve extracted directly from client configuration."
+    },
+    "FLAT_HP": {
+      "value": "21 levels scaling from 717.0 to 4780.0",
+      "evidence": "VERIFIED",
+      "source": "Dimbreath / AnimeGameData (ExcelBinOutput/ReliquaryLevelExcelConfigData.json: rank=5, propType=FIGHT_PROP_HP)",
+      "retrieved_on": "2026-10-15",
+      "valid_from_version": "1.0",
+      "notes": "Exact 21-level progression curve extracted directly from client configuration."
+    },
+    "GEO_DMG_BONUS": {
+      "value": "21 levels scaling from 7.0 to 46.6",
+      "evidence": "VERIFIED",
+      "source": "Dimbreath / AnimeGameData (ExcelBinOutput/ReliquaryLevelExcelConfigData.json: rank=5, propType=FIGHT_PROP_ROCK_ADD_HURT)",
+      "retrieved_on": "2026-10-15",
+      "valid_from_version": "1.0",
+      "notes": "Exact 21-level progression curve extracted directly from client configuration."
+    },
+    "HEALING_BONUS": {
+      "value": "21 levels scaling from 5.4 to 35.9",
+      "evidence": "VERIFIED",
+      "source": "Dimbreath / AnimeGameData (ExcelBinOutput/ReliquaryLevelExcelConfigData.json: rank=5, propType=FIGHT_PROP_HEAL_ADD)",
+      "retrieved_on": "2026-10-15",
+      "valid_from_version": "1.0",
+      "notes": "Exact 21-level progression curve extracted directly from client configuration."
+    },
+    "HP_PERCENT": {
+      "value": "21 levels scaling from 7.0 to 46.6",
+      "evidence": "VERIFIED",
+      "source": "Dimbreath / AnimeGameData (ExcelBinOutput/ReliquaryLevelExcelConfigData.json: rank=5, propType=FIGHT_PROP_HP_PERCENT)",
+      "retrieved_on": "2026-10-15",
+      "valid_from_version": "1.0",
+      "notes": "Exact 21-level progression curve extracted directly from client configuration."
+    },
+    "HYDRO_DMG_BONUS": {
+      "value": "21 levels scaling from 7.0 to 46.6",
+      "evidence": "VERIFIED",
+      "source": "Dimbreath / AnimeGameData (ExcelBinOutput/ReliquaryLevelExcelConfigData.json: rank=5, propType=FIGHT_PROP_WATER_ADD_HURT)",
+      "retrieved_on": "2026-10-15",
+      "valid_from_version": "1.0",
+      "notes": "Exact 21-level progression curve extracted directly from client configuration."
+    },
+    "PHYSICAL_DMG_BONUS": {
+      "value": "21 levels scaling from 8.7 to 58.3",
+      "evidence": "VERIFIED",
+      "source": "Dimbreath / AnimeGameData (ExcelBinOutput/ReliquaryLevelExcelConfigData.json: rank=5, propType=FIGHT_PROP_PHYSICAL_ADD_HURT)",
+      "retrieved_on": "2026-10-15",
+      "valid_from_version": "1.0",
+      "notes": "Exact 21-level progression curve extracted directly from client configuration."
+    },
+    "PYRO_DMG_BONUS": {
+      "value": "21 levels scaling from 7.0 to 46.6",
+      "evidence": "VERIFIED",
+      "source": "Dimbreath / AnimeGameData (ExcelBinOutput/ReliquaryLevelExcelConfigData.json: rank=5, propType=FIGHT_PROP_FIRE_ADD_HURT)",
+      "retrieved_on": "2026-10-15",
+      "valid_from_version": "1.0",
+      "notes": "Exact 21-level progression curve extracted directly from client configuration."
     }
   }
 }
