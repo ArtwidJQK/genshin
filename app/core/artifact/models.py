@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import List, Optional
+from typing import Any, List, Optional
 
 CANONICAL_SUBSTATS = frozenset({
     "FLAT_HP",
@@ -178,3 +178,8 @@ class Artifact:
     def inactive_substats(self) -> List[Substat]:
         """Return all currently inactive/previewed substats."""
         return [s for s in self.substats if s.state == SubstatState.INACTIVE]
+
+    def get_main_stat_value(self, config: Optional[Any] = None) -> float:
+        """Return the exact unrounded numerical main stat value for this artifact at its current level."""
+        from app.core.artifact.scaling import get_main_stat_value
+        return get_main_stat_value(self, config=config)
