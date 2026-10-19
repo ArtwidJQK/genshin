@@ -1,9 +1,9 @@
 # Genshin Project State
 
-**Audit Timestamp:** 2026-10-20T02:18:00+07:00
+**Audit Timestamp:** 2026-10-20T05:43:00+07:00
 **Target Game Version:** Genshin Impact 7.1 ("A Rekviem for the Underworld", Released 2026-09-23)
 **Local Repository:** `D:\side_project\genshin`
-**Current Phase:** P2 Artifact Core (Step 3 Completed & Merged into main; 178 passed)
+**Current Phase:** P3 Artifact Loot Sources (Completed & Committed to main; 201 tests passed)
 **Canonical Roadmap:** `docs/PROJECT_PLAN.md` (Kế hoạch A–Z: Genshin Artifact & Wish Simulator)
 
 ---
@@ -11,10 +11,10 @@
 ## 1. Git & Repository Status
 
 ### Audited Repository State
-- **GitHub main baseline:** `1228624df33e8b3f4bb2da36e073c70f074a3202` (Merge pull request #3 from `ArtwidJQK/agent/p2-step3-main-stat-scaling`).
+- **GitHub main baseline:** `827482bdfad230cb8329beabc0257cb2590db799` (`feat(artifact): implement artifact loot sources, config, and 3-layer test suite`).
 - **Current Local Branch:** `main` (synchronized with `origin/main`).
-- **Working tree:** Clean (post-merge reconciliation committed).
-- **Remote main:** Up to date with `1228624df33e8b3f4bb2da36e073c70f074a3202`.
+- **Working tree:** Post-P3.2 state reconciliation.
+- **Remote main:** Up to date with `827482bdfad230cb8329beabc0257cb2590db799`.
 - **Git policy:** Commits and pushes authorized by Project Lead. No unauthorized commits to `main`.
 
 ---
@@ -31,12 +31,13 @@
 | **P2 Step 1: Datamine Importer** | 5★ Main-stat scaling & Substat roll tiers extraction | `tools/import_artifact_datamine.py`, `config/artifacts/main_stat_scaling.json`, `tests/fixtures/datamine/` | 10 passed (`test_datamine_importer.py`: 10) | Level B (Datamine Verified) | **VERIFIED & COMPLETED** |
 | **P2 Step 2: Formatter & Property Tests** | Display formatting boundary & Hypothesis invariants | `app/core/artifact/formatting.py`, `tests/test_artifact_properties.py`, `docs/adr/ADR-001-display-rounding.md` | 15 passed (`test_artifact_properties.py`: 15) | Level A / B Presentation Boundary | **VERIFIED & COMPLETED** |
 | **P2 Step 3: Main-Stat Scaling** | Domain API exposing exact 21-level main stat curves | `app/core/artifact/scaling.py`, `app/core/artifact/config.py`, `tests/test_artifact_scaling.py` | 40 passed (`test_artifact_scaling.py`: 40) | Level B (Datamine Verified) | **VERIFIED & MERGED (PR #3)** |
+| **P3: Artifact Loot Sources** | Domain of Blessing & Mystic Offering Strongbox; strict fidelity refusal; 3-layer decoupled test suite | `app/core/artifact/loot.py`, `config/artifacts/loot_sources.json`, `tests/unit/`, `tests/statistical/` | 23 passed (`test_loot_determinism.py`: 6, `test_loot_invariants.py`: 14, `test_loot_statistical.py`: 3) | Level A (Rules) / Level C (Empirical models) | **VERIFIED & GATE APPROVED BY PROJECT LEAD** |
 | **P2: Character Gacha SPEC** | Pluggable Probability & State Machine Architecture | `docs/specs/p2_gacha_engine_spec.md`, `docs/SPEC_WISH.md` | Deterministic & Monte Carlo specs defined | Level A Facts vs Level C Empirical vs Simulator Choices | **AUDITED & CORRECTED** (Commit `5891919`) |
 | **P2: Character Gacha Implementation** | Engine implementation (`app/core/gacha/`) | None (Directory not created) | 0 tests | N/A | **BLOCKED ON CAPTURING RADIANCE MODEL** |
 | **Agent Infrastructure** | Operating rules, workflow roles, and tool skills | `AGENTS.md`, `.genshin/`, `.agents/skills/` | Verified static assets | Repo-local operating rules | **STATICALLY VERIFIED** |
 
-**Post-Merge CI Status (Run 39309289931 on 1228624):** Python 3.11 and Python 3.12 matrix jobs completed success.
-**Overall Test Suite Status:** **178/178 passing automated tests, 2 warnings** (execution duration ~3.3s–9.9s).
+**CI Status for P3.2 (`827482b`):** Pushed to origin/main; remote CI run pending. Last completed green CI run: `39309289931` on `1228624`.
+**Overall Test Suite Status:** **201/201 passing automated tests, 2 warnings** (Fast suite: 200 passed in 35.25s; Heavy statistical test: 1 passed in 294.87s).
 
 ---
 
@@ -73,6 +74,14 @@
    - 5★ substat roll tiers in depot 501 verified against ratio bounds $0.70/0.80/0.90/1.00$ within $\pm 0.005$ tolerance.
    - Granular `VERIFIED` provenance records added non-destructively to `config/artifacts/provenance.json`.
 
+6. **Artifact Loot Sources (P3 Milestone):**
+   - Domain of Blessing (20 Original Resin or 1 Condensed Resin): Level 90 domains drop guaranteed 1 5★ artifact plus Bernoulli trial ($p = 0.0654$) for 2nd; 4★ fodder count (2 baseline + 48% chance of 3rd); initial line count (80% 3-line vs 20% 4-line).
+   - Condensed Resin Equivalence: Advances one single continuous PRNG stream across 2 sequential cycles; bit-for-bit identical to 2 consecutive normal runs on an un-reset RNG stream.
+   - Mystic Offering Strongbox: 3:1 conversion ratio; strict input validation (list type, multiple of 3, minimum 3, rarity 5★ only, non-empty target set); initial line count (66% 3-line vs 34% 4-line).
+   - Strict Fidelity Refusal: Calling `run_domain_of_blessing` or `craft_strongbox` in `STRICT` mode raises `FidelityViolationError` without silent fallback; catalog validation in `strict` mode rejects `INFERRED` constants in `loot_sources.json`.
+   - Statistical Dual-Gate Verification: Fast Suite ($N = 100,000$, seed `20261020`) and Heavy Suite ($N = 1,000,000$, seed `20261021`) both independently passed Gate 1 (Bonferroni Chi-Square $M=3$) and Gate 2 ($4\sigma$ boundaries on both $N_{\text{art}}$ and $N_{\text{runs}}$).
+   - Adversarial Review: Recorded as `PASS` (0 Critical, 0 High) in `docs/reports/P3-STEP-2-adversarial-review.md`.
+
 ---
 
 ## 4. Gaps & Unresolved Questions
@@ -85,7 +94,7 @@
 2. **Hallowed Exegesis Threshold Milestones (Reshaping):**
    - **STATUS: BLOCKED** (Do not implement Reshaping while community sources conflict: 6/12/18 vs 12/16).
 3. **Multi-Source Artifact Line Count:**
-   - **STATUS: ISOLATED TO DOMAIN DROPS** ($80/20$). Strongbox/Bosses ($66/34$) to be addressed in P3.
+   - **STATUS: RESOLVED IN P3** (Domain 80/20 & Strongbox 66/34 implemented and statistically verified).
 
 ---
 
@@ -104,16 +113,20 @@
   - Core specification books established: `docs/SPEC_ARTIFACT.md` and `docs/SPEC_WISH.md`.
   - Datamine importer requirement (`docs/PROJECT_PLAN.md:166`) fully satisfied by `tools/import_artifact_datamine.py` and verified by automated tests (`tests/test_datamine_importer.py`).
   - 18 main stat scaling curves and 40 substat roll values verified against client datamine sources.
+- **P2 Gate (Artifact Foundation Scaling & Formatting):** **PASS (MERGED PR #3)**
+- **P3 Gate (Artifact Loot Sources):** **PASS**
+  - Rule fidelity verified: zero silent fallback in STRICT mode (`FidelityViolationError`).
+  - Probability fidelity verified: dual-gate pre-registered statistical suite passes on both Fast ($N=100k$) and Heavy ($N=1M$) datasets.
+  - Determinism verified: bit-for-bit replay from seed; global PRNG isolation.
+  - Adversarial review verified: `docs/reports/P3-STEP-2-adversarial-review.md` verdict PASS.
 - **Rule Fidelity Gate (v7.1 Delta):** **PASS**
-  - Full source inventory and delta matrix documented.
-  - Tier A official rules separated from Tier C empirical models.
-- **Probability Fidelity Gate:** **PASS (Artifact Foundation uniform upgrade target & roll tier chi-square pre-registered tests verified); PENDING PHASE 5 for Gacha.**
+- **Probability Fidelity Gate:** **PASS (Artifact Foundation & Loot Sources verified; Gacha pending Phase 5).**
 
 ---
 
 ## 6. Current Task and Next Step
 
-- **Completed:** P2 Step 3 merged into `main` (Merge commit `1228624df33e8b3f4bb2da36e073c70f074a3202`, PR #3). Verified by GitHub Actions CI run `39309289931` (Python 3.11/3.12 passed) and 178 passing tests locally.
-- **Review gates:** Full test suite (178 passed, 2 warnings) and `git diff --check` green on `main`. Adversarial review recorded as PASS (`docs/reports/P2-STEP-3-adversarial-review.md`).
-- **Next authorized step:** Awaiting Project Lead directive for Phase P3 (Loot Sources: Domain drops 80/20 & Strongbox 66/34). Capturing Radiance and Reshaping / Hallowed Exegesis remain strictly blocked.
+- **Completed:** P3 Artifact Loot Sources implemented, verified, and committed (`827482bdfad230cb8329beabc0257cb2590db799`). 201 automated tests passing locally.
+- **Review gates:** Full test suite (201 passed, 2 warnings) and `git diff --check` green. Adversarial review recorded as PASS (`docs/reports/P3-STEP-2-adversarial-review.md`).
+- **Next authorized step:** Awaiting Project Lead directive for Phase P4 (Artifact Transmuter & Sanctifying Elixir) or P2 Gacha specification refinement. Capturing Radiance (`OQ-01`) and Reshaping / Hallowed Exegesis (`OQ-03`) remain strictly blocked.
 - **Gacha implementation:** remains blocked on an approved Capturing Radiance model; do not invent a default.
