@@ -2,13 +2,16 @@ import json
 import math
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union, TYPE_CHECKING
 
 from app.core.artifact.models import (
     CANONICAL_SUBSTATS,
     VALID_MAIN_STATS,
     ArtifactSlot,
 )
+
+if TYPE_CHECKING:
+    from app.core.artifact.models import Artifact
 
 EXPECTED_TIERS = frozenset({"70%", "80%", "90%", "100%"})
 
@@ -141,6 +144,33 @@ class ArtifactConfig:
                     if prev is not None and val <= prev:
                         raise ValueError(f"main_stat_scaling['{stat}'][{lvl}] ({val}) is not strictly greater than previous level ({prev})")
                     prev = val
+
+            # Consistency check: verify that every main stat configured across all artifact slots
+            # is accounted for in main_stat_scaling.
+            all_slot_stats = set()
+            for slot_stats in self.main_stats.values():
+                all_slot_stats.update(slot_stats.keys())
+            if all_slot_stats != set(self.main_stat_scaling.keys()):
+                diff = all_slot_stats.symmetric_difference(set(self.main_stat_scaling.keys()))
+                raise ValueError(f"Mismatch between configured slot main stats and main_stat_scaling: {diff}")
+
+    def get_main_stat_value(
+        self,
+        target: Union["Artifact", str],
+        level: Optional[int] = None,
+    ) -> float:
+        """Retrieve the exact numerical main stat value using this configuration.
+
+        Args:
+            target: Either an Artifact instance or a canonical 5★ main stat string.
+            level: Artifact level in [0, 20]. Must be None if target is an Artifact;
+                   required if target is a stat_type string.
+
+        Returns:
+            float: Exact unrounded internal floating-point value.
+        """
+        from app.core.artifact.scaling import get_main_stat_value
+        return get_main_stat_value(target, level=level, config=self)
 
 
 def load_artifact_config(config_dir: Union[Path, str, None] = None) -> ArtifactConfig:

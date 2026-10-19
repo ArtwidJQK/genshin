@@ -254,3 +254,21 @@ class ArtifactEngine:
             raise ValueError(f"Artifact is already at maximum level ({self.config.max_level})")
         events = self.enhance_artifact(artifact, target_level=next_milestones[0])
         return events[0]
+
+    def get_main_stat_value(
+        self,
+        target: Union[Artifact, str],
+        level: Optional[int] = None,
+    ) -> float:
+        """Retrieve the exact numerical main stat value using the engine's configuration.
+
+        Args:
+            target: Either an Artifact instance or a canonical 5★ main stat string.
+            level: Artifact level in [0, 20]. Must be None if target is an Artifact;
+                   required if target is a stat_type string.
+
+        Returns:
+            float: Exact unrounded internal floating-point value.
+        """
+        from app.core.artifact.scaling import get_main_stat_value
+        return get_main_stat_value(target, level=level, config=self.config)

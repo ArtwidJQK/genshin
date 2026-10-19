@@ -12,6 +12,7 @@ from app.core.artifact.models import (
     SubstatRoll,
     SubstatState,
 )
+from app.core.artifact.scaling import get_main_stat_value
 
 __all__ = [
     "ALL_ARTIFACT_PROPERTIES",
@@ -27,4 +28,5 @@ __all__ = [
     "load_artifact_config",
     "ArtifactEngine",
     "format_stat_value",
+    "get_main_stat_value",
 ]
