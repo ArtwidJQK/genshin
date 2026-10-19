@@ -3,7 +3,7 @@
 **Audit Timestamp:** 2026-10-20
 **Target Game Version:** Genshin Impact 7.1 ("A Rekviem for the Underworld", Released 2026-09-23)
 **Local Repository:** `D:\side_project\genshin`
-**Current Phase:** P2 Artifact Core (Step 2 implementation on review branch)
+**Current Phase:** P2 Artifact Core (Step 2 — formatter/property tests; CI PASS, merge pending)
 **Canonical Roadmap:** `docs/PROJECT_PLAN.md` (Kế hoạch A–Z: Genshin Artifact & Wish Simulator)
 
 ---
@@ -33,7 +33,7 @@
 | **P2: Character Gacha Implementation** | Engine implementation (`app/core/gacha/`) | None (Directory not created) | 0 tests | N/A | **BLOCKED ON CAPTURING RADIANCE MODEL** |
 | **Agent Infrastructure** | Operating rules, workflow roles, and tool skills | `AGENTS.md`, `.genshin/`, `.agents/skills/` | Verified static assets | Repo-local operating rules | **STATICALLY VERIFIED** |
 
-**Baseline test suite:** 123 passed, 2 warnings in the previously reported run. Step 2 verification must be established by CI for the task branch; the GitHub connector cannot execute local pytest.
+**P2 Step 2 CI:** 138 passed, 1 Starlette deprecation warning on Python 3.11 (1.96s) and 138 passed, 1 Starlette deprecation warning on Python 3.12 (2.28s). GitHub Actions run 39294411756 succeeded for both matrix jobs.
 
 ---
 
@@ -111,6 +111,6 @@
 ## 6. Current Task and Next Step
 
 - **In progress:** P2 Step 2 — separate display formatting from internal value accumulation and add property-based tests for artifact slot, generation, enhancement, and determinism invariants.
-- **Review gates:** Full CI suite and adversarial review must pass before merging the task branch.
+- **Review gates:** CI passed on Python 3.11 and 3.12; adversarial review PASS recorded in docs/reports/P2-STEP-2-artifact-formatter.md. Merge the task branch after this report/state commit also passes CI.
 - **Next after this gate:** Finish remaining P2 core work by exposing and testing the imported main-stat value curve for the artifact's current level; then continue to P3 source-specific loot rules (Domain first) and Strongbox as a separate researched module. Do not implement Reshaping while OQ-03 remains blocked.
 - **Gacha implementation:** remains blocked on an approved Capturing Radiance model; do not invent a default.
