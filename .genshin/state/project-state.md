@@ -1,21 +1,21 @@
 # Genshin Project State
 
-**Audit Timestamp:** 2026-10-19T23:54:00+07:00
+**Audit Timestamp:** 2026-10-20
 **Target Game Version:** Genshin Impact 7.1 ("A Rekviem for the Underworld", Released 2026-09-23)
 **Local Repository:** `D:\side_project\genshin`
-**Current Phase:** P1 Data & Specifications (Gate Approved for Closure) / P2 Artifact Core (Step 1 Completed)
+**Current Phase:** P2 Artifact Core (Step 2 implementation on review branch)
 **Canonical Roadmap:** `docs/PROJECT_PLAN.md` (Kế hoạch A–Z: Genshin Artifact & Wish Simulator)
 
 ---
 
 ## 1. Git & Repository Status
 
-### Local State
-- **Current Local Branch:** `main`
-- **Local HEAD Commit:** `e0c9ac7` (`feat(artifact): add datamine importer and verified scaling data`)
-- **Remote `origin/main` Tracking:** 1 commit ahead of `origin/main` (`2ed6c3b`).
-- **Working Tree Changes:** Clean (0 modified, 0 untracked files; implementation and state changes committed).
-- **Git Commit Policy:** Commits and pushes authorized by PO (Art). P2 Step 1 implementation and state update commits completed.
+### Audited Repository State
+- **GitHub main baseline:** da26d5e3acceb54454a74515ad251d122cd3fcd3 (docs(state): reconcile project state after P2 Step 1 commit).
+- **Task branch:** agent/p2-step2-artifact-formatting (Step 2 changes isolated here).
+- **Local Windows working tree:** Not observable through the GitHub connector; verify local status before syncing the branch.
+- **Remote main:** Not modified by this task while implementation and CI review are pending.
+- **Git policy:** Project Lead has authorized project continuation and Git commits/pushes; do not bypass review or merge while CI is failing.
 
 ---
 
@@ -33,7 +33,7 @@
 | **P2: Character Gacha Implementation** | Engine implementation (`app/core/gacha/`) | None (Directory not created) | 0 tests | N/A | **BLOCKED ON CAPTURING RADIANCE MODEL** |
 | **Agent Infrastructure** | Operating rules, workflow roles, and tool skills | `AGENTS.md`, `.genshin/`, `.agents/skills/` | Verified static assets | Repo-local operating rules | **STATICALLY VERIFIED** |
 
-**Overall Test Suite Status:** **123/123 passing automated tests, 2 warnings** (`python -m pytest -v` on Python 3.14, execution duration ~0.95s–1.06s).
+**Baseline test suite:** 123 passed, 2 warnings in the previously reported run. Step 2 verification must be established by CI for the task branch; the GitHub connector cannot execute local pytest.
 
 ---
 
@@ -108,9 +108,9 @@
 
 ---
 
-## 6. Next Authorized Step
+## 6. Current Task and Next Step
 
-- Await separate Project Lead (Art) authorization for **P2 Step 2** (Artifact lõi hoàn chỉnh):
-  - Artifact display formatter separating internal floating-point values from display rounding.
-  - Comprehensive property-based tests for slot restrictions and enhancement invariants.
-  - Gacha engine skeleton upon resolution/strategy approval of Capturing Radiance.
+- **In progress:** P2 Step 2 — separate display formatting from internal value accumulation and add property-based tests for artifact slot, generation, enhancement, and determinism invariants.
+- **Review gates:** Full CI suite and adversarial review must pass before merging the task branch.
+- **Next after this gate:** P2 Step 3 — source-specific loot-source rules (Domain first), with Strongbox as a separate researched module. Do not implement Reshaping while OQ-03 remains blocked.
+- **Gacha implementation:** remains blocked on an approved Capturing Radiance model; do not invent a default.
