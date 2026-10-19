@@ -1,9 +1,9 @@
 # Genshin Project State
 
-**Audit Timestamp:** 2026-10-20T01:50:00+07:00
+**Audit Timestamp:** 2026-10-20T02:18:00+07:00
 **Target Game Version:** Genshin Impact 7.1 ("A Rekviem for the Underworld", Released 2026-09-23)
 **Local Repository:** `D:\side_project\genshin`
-**Current Phase:** P2 Artifact Core (Step 3 — expose main-stat scaling; 178 passed)
+**Current Phase:** P2 Artifact Core (Step 3 Completed & Merged into main; 178 passed)
 **Canonical Roadmap:** `docs/PROJECT_PLAN.md` (Kế hoạch A–Z: Genshin Artifact & Wish Simulator)
 
 ---
@@ -11,11 +11,11 @@
 ## 1. Git & Repository Status
 
 ### Audited Repository State
-- **GitHub main baseline:** `73acb05be466ef1cbc3384e4c2e9ef9566a2b90b` (`P2-STEP-2: add artifact formatter and property tests`).
-- **Task branch:** `agent/p2-step3-main-stat-scaling` (Step 3 implementation and tests isolated here).
-- **Working tree:** Isolated changes on task branch; ready for staging and PR.
-- **Remote main:** Preserved; PR to be opened for review without direct push or self-merge.
-- **Git policy:** Feature branch isolation followed strictly per `AGENTS.md`; commits and pushes authorized by Project Lead.
+- **GitHub main baseline:** `1228624df33e8b3f4bb2da36e073c70f074a3202` (Merge pull request #3 from `ArtwidJQK/agent/p2-step3-main-stat-scaling`).
+- **Current Local Branch:** `main` (synchronized with `origin/main`).
+- **Working tree:** Clean (post-merge reconciliation committed).
+- **Remote main:** Up to date with `1228624df33e8b3f4bb2da36e073c70f074a3202`.
+- **Git policy:** Commits and pushes authorized by Project Lead. No unauthorized commits to `main`.
 
 ---
 
@@ -30,12 +30,13 @@
 | **Mechanics Delta Audit (v7.1)** | Delta matrix for v7.1 "A Rekviem for the Underworld" | `docs/research/version_7_1_mechanics_delta.md` | N/A (Official HoYoverse Notices Audit) | Level A–C Classified | **VERIFIED & COMPLETE** (No mechanics change found) |
 | **P2 Step 1: Datamine Importer** | 5★ Main-stat scaling & Substat roll tiers extraction | `tools/import_artifact_datamine.py`, `config/artifacts/main_stat_scaling.json`, `tests/fixtures/datamine/` | 10 passed (`test_datamine_importer.py`: 10) | Level B (Datamine Verified) | **VERIFIED & COMPLETED** |
 | **P2 Step 2: Formatter & Property Tests** | Display formatting boundary & Hypothesis invariants | `app/core/artifact/formatting.py`, `tests/test_artifact_properties.py`, `docs/adr/ADR-001-display-rounding.md` | 15 passed (`test_artifact_properties.py`: 15) | Level A / B Presentation Boundary | **VERIFIED & COMPLETED** |
-| **P2 Step 3: Main-Stat Scaling** | Domain API exposing exact 21-level main stat curves | `app/core/artifact/scaling.py`, `app/core/artifact/config.py`, `tests/test_artifact_scaling.py` | 40 passed (`test_artifact_scaling.py`: 40) | Level B (Datamine Verified) | **VERIFIED & TESTED** |
+| **P2 Step 3: Main-Stat Scaling** | Domain API exposing exact 21-level main stat curves | `app/core/artifact/scaling.py`, `app/core/artifact/config.py`, `tests/test_artifact_scaling.py` | 40 passed (`test_artifact_scaling.py`: 40) | Level B (Datamine Verified) | **VERIFIED & MERGED (PR #3)** |
 | **P2: Character Gacha SPEC** | Pluggable Probability & State Machine Architecture | `docs/specs/p2_gacha_engine_spec.md`, `docs/SPEC_WISH.md` | Deterministic & Monte Carlo specs defined | Level A Facts vs Level C Empirical vs Simulator Choices | **AUDITED & CORRECTED** (Commit `5891919`) |
 | **P2: Character Gacha Implementation** | Engine implementation (`app/core/gacha/`) | None (Directory not created) | 0 tests | N/A | **BLOCKED ON CAPTURING RADIANCE MODEL** |
 | **Agent Infrastructure** | Operating rules, workflow roles, and tool skills | `AGENTS.md`, `.genshin/`, `.agents/skills/` | Verified static assets | Repo-local operating rules | **STATICALLY VERIFIED** |
 
-**Overall Test Suite Status:** **178/178 passing automated tests, 2 warnings** (execution duration ~3.5s).
+**Post-Merge CI Status (Run 39309289931 on 1228624):** Python 3.11 and Python 3.12 matrix jobs completed success.
+**Overall Test Suite Status:** **178/178 passing automated tests, 2 warnings** (execution duration ~3.3s–9.9s).
 
 ---
 
@@ -112,7 +113,7 @@
 
 ## 6. Current Task and Next Step
 
-- **Completed on branch:** P2 Step 3 — expose artifact main-stat scaling via domain API (`get_main_stat_value`), exact 18x21 matrix verified against JSON, property tests for immutability, monotonicity, and determinism.
-- **Review gates:** Local test suite 178/178 passed; `git diff --check` clean. Branch `agent/p2-step3-main-stat-scaling` pushed and PR opened for independent review by Claude Code.
-- **Next after this gate:** P3 source-specific loot rules (Domain first: 80/20 initial lines, 20 resin, 50/50 set distribution) and Strongbox (66/34 lines, 3-to-1 sacrifice). Do not implement Reshaping while OQ-03 remains blocked.
+- **Completed:** P2 Step 3 merged into `main` (Merge commit `1228624df33e8b3f4bb2da36e073c70f074a3202`, PR #3). Verified by GitHub Actions CI run `39309289931` (Python 3.11/3.12 passed) and 178 passing tests locally.
+- **Review gates:** Full test suite (178 passed, 2 warnings) and `git diff --check` green on `main`. Adversarial review recorded as PASS (`docs/reports/P2-STEP-3-adversarial-review.md`).
+- **Next authorized step:** Awaiting Project Lead directive for Phase P3 (Loot Sources: Domain drops 80/20 & Strongbox 66/34). Capturing Radiance and Reshaping / Hallowed Exegesis remain strictly blocked.
 - **Gacha implementation:** remains blocked on an approved Capturing Radiance model; do not invent a default.
